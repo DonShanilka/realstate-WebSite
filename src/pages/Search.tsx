@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import { formatPrice, toNumber } from "../format";
-import { PropertyGrid } from "../components/PropertyCard";
+import { PropertyGrid } from "../components/property/PropertyCard";
 import { Button, Chip, ErrorAlert, Field, PageHeader, SelectField, Spinner, TextArea } from "../components/ui";
 import type { Property, SearchFilters } from "../types";
 
