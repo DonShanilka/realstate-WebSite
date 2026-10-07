@@ -1,9 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Navbar } from "./components/Navbar";
-import Assistant from "./pages/Assistant";
-import Home from "./pages/Home";
-import PricePrediction from "./pages/PricePrediction";
-import Search from "./pages/Search";
+import { Navbar } from "../components/layout/Navbar";
+import Assistant from "../pages/Assistant";
+import Home from "../pages/Home";
+import PricePrediction from "../pages/PricePrediction";
+import Search from "../pages/Search";
 
 export default function App() {
   return (

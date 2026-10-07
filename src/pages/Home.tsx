@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { api } from "../api";
+import { api } from "../api/api";
 import { PropertyGrid } from "../components/property/PropertyCard";
 import { Button, ErrorAlert, Spinner } from "../components/ui";
 import type { Property } from "../types";

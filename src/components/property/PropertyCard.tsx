@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { formatPrice, formatType, location } from "../../format";
+import { formatPrice, formatType, location } from "../../utils/format";
 import type { Property } from "../../types";
 import { Chip } from "../ui";
 import { PropertyDetailsModal } from "./PropertyDetailsModal";

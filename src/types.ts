@@ -13,6 +13,7 @@ export interface Property {
   district: string | null;
   country: string | null;
   image_url: string | null;
+  video_url?: string | null;
 }
 
 export interface SearchFilters {

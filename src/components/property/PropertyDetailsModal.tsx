@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { formatPrice, formatType, location } from "../../format";
+import { formatPrice, formatType, location } from "../../utils/format";
 import type { Property } from "../../types";
-import { Chip } from "../ui";
 
 interface PropertyDetailsModalProps {
   property: Property;

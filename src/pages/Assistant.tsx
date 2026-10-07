@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { api } from "../api";
-import { formatPrice, formatType, location } from "../format";
+import { api } from "../api/api";
+import { formatPrice, formatType, location } from "../utils/format";
 import { Button, Chip, ErrorAlert, PageHeader, Spinner } from "../components/ui";
 import type { AssistantProperty, AssistantResponse } from "../types";
 
