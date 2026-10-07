@@ -85,7 +85,7 @@ export function ErrorAlert({ message }: { message: string }) {
 export function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="border-b border-blue-100 bg-blue-50/60">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <div className="w-full px-[50px] py-10 sm:px-[100px]">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
         <p className="mt-2 max-w-2xl text-slate-600">{subtitle}</p>
       </div>

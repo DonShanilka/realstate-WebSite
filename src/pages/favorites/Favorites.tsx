@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Favorites() {
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <main className="w-full px-[50px] py-10 sm:px-[100px]">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Favorites</h1>
 

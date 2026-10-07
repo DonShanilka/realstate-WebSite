@@ -102,7 +102,7 @@ export default function Assistant() {
         title="AI Property Assistant"
         subtitle="Ask a question and get a recommendation based on the properties in our database."
       />
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-3xl px-[50px] py-8 sm:px-[100px]">
         {turns.length === 0 && (
           <div className="mb-6">
             <p className="mb-3 text-sm font-medium text-slate-600">Try asking:</p>

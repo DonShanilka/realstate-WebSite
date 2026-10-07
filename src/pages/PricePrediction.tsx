@@ -64,7 +64,7 @@ export default function PricePredictionPage() {
         title="Price Prediction"
         subtitle="Enter a property's details and our model estimates its market price."
       />
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-5">
+      <div className="grid w-full gap-8 px-[50px] py-8 sm:px-[100px] lg:grid-cols-5">
         <form onSubmit={submit} className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 sm:p-6 lg:col-span-3">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Location (city)" required value={form.city} onChange={set("city")} placeholder="Colombo" />

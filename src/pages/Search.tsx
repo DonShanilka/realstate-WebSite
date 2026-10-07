@@ -97,7 +97,7 @@ export default function Search() {
         title="Advanced Search"
         subtitle="Describe your ideal property in your own words, or use detailed filters."
       />
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="w-full px-[50px] py-8 sm:px-[100px]">
         <div role="tablist" aria-label="Search type" className="mb-5 inline-flex rounded-lg bg-slate-100 p-1">
           {([["natural", "Describe it"], ["filters", "Filters"]] as const).map(([value, label]) => (
             <button

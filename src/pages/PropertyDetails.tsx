@@ -37,10 +37,10 @@ export default function PropertyDetails() {
     return () => { active = false; };
   }, [id, initialProperty]);
 
-  if (loading) return <div className="mx-auto max-w-5xl px-4 py-12"><Spinner label="Loading property" /></div>;
+  if (loading) return <div className="w-full px-[50px] py-12 sm:px-[100px]"><Spinner label="Loading property" /></div>;
   if (error || !property) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-8">
+      <div className="w-full px-[50px] py-8 sm:px-[100px]">
         <Link to="/search" className="mb-5 inline-block text-sm font-medium text-blue-700 hover:text-blue-900">← Back to properties</Link>
         <ErrorAlert message={error || "This property could not be found."} />
       </div>
@@ -51,7 +51,7 @@ export default function PropertyDetails() {
   const mapQuery = encodeURIComponent(place || property.title);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
+    <main className="w-full px-[50px] py-5 sm:px-[100px] sm:py-8">
       <Link to="/search" className="mb-4 inline-flex text-sm font-medium text-blue-700 hover:text-blue-900">← Back to properties</Link>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(250px,0.8fr)]">
         <div className="min-w-0">

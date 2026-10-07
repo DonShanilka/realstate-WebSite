@@ -47,7 +47,7 @@ export default function Home() {
   return (
     <>
       <section className="bg-gradient-to-b from-blue-50 to-white">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="w-full px-[50px] py-16 sm:px-[100px] sm:py-24">
           <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             Find a home that fits your life, <span className="text-blue-600">with a little AI.</span>
           </h1>
@@ -72,7 +72,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-4 sm:px-6 md:grid-cols-3">
+      <section className="grid w-full gap-4 px-[50px] pb-4 sm:px-[100px] md:grid-cols-3">
         {features.map((feature) => (
           <Link
             key={feature.to}
@@ -86,7 +86,7 @@ export default function Home() {
         ))}
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+      <section className="w-full px-[50px] py-12 sm:px-[100px]">
         <div className="mb-6 flex items-end justify-between">
           <h2 className="text-2xl font-bold text-slate-900">Latest properties</h2>
           <Link to="/search" className="text-sm font-medium text-blue-600 hover:text-blue-800">
