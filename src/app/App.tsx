@@ -3,6 +3,7 @@ import { Navbar } from "../components/layout/Navbar";
 import Assistant from "../pages/Assistant";
 import Home from "../pages/Home";
 import PricePrediction from "../pages/PricePrediction";
+import PropertyDetails from "../pages/PropertyDetails";
 import Search from "../pages/Search";
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/properties/:id" element={<PropertyDetails />} />
           <Route path="/assistant" element={<Assistant />} />
           <Route path="/price-prediction" element={<PricePrediction />} />
           <Route path="*" element={<p className="p-10 text-center text-slate-500">Page not found.</p>} />

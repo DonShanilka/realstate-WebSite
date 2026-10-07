@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatPrice, formatType, location } from "../../utils/format";
 import type { Property } from "../../types";
 import { Chip } from "../ui";
-import { PropertyDetailsModal } from "./PropertyDetailsModal";
 
 interface PropertyCardProps {
   property: Property;
@@ -11,19 +10,23 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property }: PropertyCardProps) {
   const [imageFailed, setImageFailed] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const place = location([property.city, property.district]);
 
   return (
-    <>
-      {/* =====================================================
-          PROPERTY CARD
-      ====================================================== */}
-
       <article
-        onClick={() => setIsModalOpen(true)}
-        className="group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-900/5"
+        onClick={() => navigate(`/properties/${property.id}`, { state: { property } })}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            navigate(`/properties/${property.id}`, { state: { property } });
+          }
+        }}
+        role="link"
+        tabIndex={0}
+        className="group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-900/5 focus:outline-none focus:ring-2 focus:ring-blue-600"
       >
         {/* Image */}
         <div className="aspect-[16/10] overflow-hidden bg-blue-50">
@@ -93,30 +96,17 @@ export function PropertyCard({ property }: PropertyCardProps) {
               Ask AI →
             </Link>
 
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                setIsModalOpen(true);
-              }}
+            <Link
+              to={`/properties/${property.id}`}
+              state={{ property }}
+              onClick={(event) => event.stopPropagation()}
               className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
             >
               View Details
-            </button>
+            </Link>
           </div>
         </div>
       </article>
-
-      {/* =====================================================
-          MODAL
-      ====================================================== */}
-
-      <PropertyDetailsModal
-        property={property}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-    </>
   );
 }
 
