@@ -39,6 +39,7 @@ export default function Home() {
   const { items, status, error } = useAppSelector((state) => state.properties);
   const [query, setQuery] = useState("");
   const properties = items.slice(0, 6);
+  const latestProjects = [...items].sort((left, right) => right.id - left.id).slice(0, 3);
   const totalProperties = items.length;
   const loading = status === "idle" || status === "loading";
   const [heroImageFailed, setHeroImageFailed] = useState(false);
@@ -170,8 +171,8 @@ export default function Home() {
       <section className="w-full bg-slate-50 px-[50px] py-12 sm:px-[100px] sm:py-16">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">Latest properties · Recently listed</p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Our latest projects</h2>
+            <p className="text-2xl uppercase text-slate-950">OUR PROPERTIES</p>
+            <h2 className="mt-2 text-5xl font-medium tracking-tight text-slate-900 sm:text-6xl">Discover Your Ideal Property</h2>
           </div>
           <Link to="/search" className="text-sm font-semibold text-slate-950 hover:text-black">Browse all properties →</Link>
         </div>
@@ -181,6 +182,19 @@ export default function Home() {
           <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">No properties have been listed yet.</p>
         )}
         {properties.length > 0 && <PropertyGrid properties={properties} />}
+      </section>
+
+      <section className="w-full px-[50px] py-12 sm:px-[100px] sm:py-16">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-2xl uppercase text-slate-950">Recently added</p>
+            <h2 className="mt-2 text-5xl font-medium tracking-tight text-slate-900 sm:text-6xl">Our Latest Project</h2>
+          </div>
+          <Link to="/search" className="text-sm font-semibold text-slate-950 hover:text-black">Explore all properties →</Link>
+        </div>
+        {loading && <Spinner label="Loading latest properties" />}
+        {!loading && latestProjects.length > 0 && <PropertyGrid properties={latestProjects} />}
+        {!loading && !error && latestProjects.length === 0 && <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">New projects will appear here when listed.</p>}
       </section>
 
       <section className="w-full px-[50px] py-14 sm:px-[100px] sm:py-20">
