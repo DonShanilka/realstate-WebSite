@@ -13,7 +13,7 @@ export default function Favorites() {
 
       {/* Empty state - replace with Redux data later */}
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-blue-100 text-2xl">
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-slate-100 text-2xl">
           ♡
         </div>
 
@@ -27,7 +27,7 @@ export default function Favorites() {
 
         <Link
           to="/search"
-          className="mt-6 inline-block rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+          className="mt-6 inline-block rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-950"
         >
           Browse Properties
         </Link>

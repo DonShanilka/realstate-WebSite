@@ -102,7 +102,7 @@ export default function Home() {
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   to="/search"
-                  className="inline-flex items-center gap-5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-blue-50"
+                  className="inline-flex items-center gap-5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-50"
                 >
                   Explore properties <span aria-hidden="true">↗</span>
                 </Link>
@@ -124,7 +124,7 @@ export default function Home() {
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-950 text-lg text-white" aria-hidden="true">↗</span>
               </div>
               <div className="mt-4 flex items-center gap-2 border-t border-slate-200 pt-3 text-xs font-medium text-slate-500">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="h-2 w-2 rounded-full bg-slate-900" />
                 New listings, search and AI insights
               </div>
             </div>
@@ -139,12 +139,12 @@ export default function Home() {
 
       <section className="w-full px-[50px] py-12 sm:px-[100px] sm:py-16">
         <div className="grid gap-8 border-b border-slate-200 pb-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">A considered move</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">Discover your ideal property</p>
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
             <h2 className="max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-4xl">
-              Find the right home, with a little more clarity.
+              Find your <span className="text-slate-950">ideal</span> place to call home.
             </h2>
-            <form onSubmit={onSubmit} className="flex w-full max-w-md shrink-0 rounded-full border border-slate-300 bg-white p-1.5 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-600/15">
+            <form onSubmit={onSubmit} className="flex w-full max-w-md shrink-0 rounded-full border border-slate-300 bg-white p-1.5 focus-within:border-slate-950 focus-within:ring-2 focus-within:ring-slate-950/15">
               <label htmlFor="home-search" className="sr-only">Describe the property you want</label>
               <input
                 id="home-search"
@@ -153,21 +153,21 @@ export default function Home() {
                 placeholder="Try ‘a 3 bedroom home in Colombo’"
                 className="min-w-0 flex-1 bg-transparent px-4 text-sm text-slate-900 outline-none placeholder:text-slate-400"
               />
-              <button type="submit" aria-label="Search properties" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blue-700 text-lg text-white transition hover:bg-blue-800">→</button>
+              <button type="submit" aria-label="Search properties" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-slate-950 text-lg text-white transition hover:bg-black">→</button>
             </form>
           </div>
         </div>
 
         <div className="grid gap-4 pt-8 md:grid-cols-3">
           {tools.map((tool) => (
-            <Link key={tool.to} to={tool.to} className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg hover:shadow-slate-900/5 sm:p-6">
+            <Link key={tool.to} to={tool.to} className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5 sm:p-6">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold tracking-[0.16em] text-slate-400">{tool.number}</span>
-                <span className="text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-700" aria-hidden="true">↗</span>
+                <span className="text-slate-400 transition group-hover:translate-x-1 group-hover:text-slate-950" aria-hidden="true">↗</span>
               </div>
               <h3 className="mt-7 text-lg font-semibold text-slate-900">{tool.title}</h3>
               <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">{tool.text}</p>
-              <span className="mt-5 inline-block text-sm font-semibold text-blue-700">{tool.action}</span>
+              <span className="mt-5 inline-block text-sm font-semibold text-slate-950">{tool.action}</span>
             </Link>
           ))}
         </div>
@@ -176,10 +176,10 @@ export default function Home() {
       <section className="w-full bg-slate-50 px-[50px] py-12 sm:px-[100px] sm:py-16">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">A place to begin</p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Latest properties</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">Latest properties · Recently listed</p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Our latest projects</h2>
           </div>
-          <Link to="/search" className="text-sm font-semibold text-blue-700 hover:text-blue-900">Browse all properties →</Link>
+          <Link to="/search" className="text-sm font-semibold text-slate-950 hover:text-black">Browse all properties →</Link>
         </div>
         {loading && <Spinner label="Loading properties" />}
         {error && <ErrorAlert message={error} />}
@@ -188,6 +188,108 @@ export default function Home() {
         )}
         {properties.length > 0 && <PropertyGrid properties={properties} />}
       </section>
+
+      <section className="w-full px-[50px] py-14 sm:px-[100px] sm:py-20">
+        <div className="grid overflow-hidden rounded-3xl bg-slate-950 text-white lg:grid-cols-[1fr_0.85fr]">
+          <div className="p-7 sm:p-10 lg:p-14">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">Personal help, when you need it</p>
+            <h2 className="mt-4 max-w-xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">Connect with our agents</h2>
+            <p className="mt-4 max-w-lg text-sm leading-6 text-slate-50 sm:text-base">
+              Have a question about a listing or want help planning a viewing? Start a conversation with our team.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link to="/messages" className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-slate-50">Contact an agent ↗</Link>
+              <Link to="/book-viewing" className="rounded-full border border-white/50 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">Plan a viewing</Link>
+            </div>
+          </div>
+          <div className="relative hidden min-h-64 overflow-hidden bg-[radial-gradient(ellipse_at_70%_25%,#d4d4d8_0%,transparent_32%),linear-gradient(145deg,#27272a,#09090b)] lg:block">
+            <div className="absolute -right-16 -top-20 h-80 w-80 rounded-full border border-white/20" />
+            <div className="absolute -right-2 -top-6 h-56 w-56 rounded-full border border-white/25" />
+            <div className="absolute bottom-10 left-10 max-w-xs rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
+              <span className="text-3xl" aria-hidden="true">⌖</span>
+              <p className="mt-3 text-lg font-semibold">Local insight for your next move</p>
+              <p className="mt-1 text-sm leading-5 text-slate-100">From first questions to a shortlist that feels right.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="w-full bg-[#f5f7fa] px-[50px] py-14 sm:px-[100px] sm:py-20">
+        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">A better move starts here</p>
+            <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-4xl">What our clients are saying</h2>
+            <p className="mt-4 max-w-md text-sm leading-6 text-slate-600">
+              Every home search is personal. We’re building EstateAI to make each step clearer, calmer, and easier to navigate.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
+            <span className="text-5xl leading-none text-slate-950" aria-hidden="true">“</span>
+            <p className="mt-2 text-xl font-medium leading-relaxed tracking-tight text-slate-800 sm:text-2xl">
+              Your experience can help make the next person’s home search better.
+            </p>
+            <div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-5">
+              <div>
+                <p className="font-semibold text-slate-900">Share your EstateAI experience</p>
+                <p className="mt-1 text-sm text-slate-500">We’d love to hear what helped you.</p>
+              </div>
+              <Link to="/messages" className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-950">Get in touch ↗</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="w-full px-[50px] py-14 sm:px-[100px] sm:py-20">
+        <div className="mx-auto max-w-4xl">
+          <div className="mb-7 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">Good to know</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Frequently asked questions</h2>
+          </div>
+          <div className="divide-y divide-slate-200 border-y border-slate-200">
+            <Faq question="How do I find a property that fits my needs?">
+              Use Search to describe what you’re looking for in plain language, or choose filters for location, price, rooms, and area.
+            </Faq>
+            <Faq question="Can EstateAI help me compare properties?">
+              Yes. Ask the EstateAI assistant about listings and what to consider when comparing their details.
+            </Faq>
+            <Faq question="How accurate is the price estimate?">
+              Price predictions are estimates based on available property data. Use them as a guide, not as a valuation or offer.
+            </Faq>
+            <Faq question="How do I ask about a viewing?">
+              Open Book a Viewing from the navigation or use Contact an Agent to start a conversation about a listing.
+            </Faq>
+          </div>
+        </div>
+      </section>
+
+      <section className="w-full px-[50px] pb-14 sm:px-[100px] sm:pb-20">
+        <div className="relative overflow-hidden rounded-3xl bg-slate-950 px-6 py-10 text-white sm:px-10 sm:py-14">
+          <div className="absolute -right-20 -top-32 h-96 w-96 rounded-full bg-slate-950/30 blur-3xl" />
+          <div className="relative flex flex-col justify-between gap-7 md:flex-row md:items-end">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-200">Your next chapter starts here</p>
+              <h2 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">Find your dream home faster.</h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">Explore real listings, get clear answers, and take the next step with confidence.</p>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-3">
+              <Link to="/search" className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-50">Start exploring ↗</Link>
+              <Link to="/assistant" className="rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">Ask EstateAI</Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
+  );
+}
+
+function Faq({ question, children }: { question: string; children: string }) {
+  return (
+    <details className="group py-5">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-base font-semibold text-slate-900 marker:content-none">
+        {question}
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-slate-200 text-lg font-normal text-slate-500 transition group-open:rotate-45 group-open:border-slate-200 group-open:text-slate-950" aria-hidden="true">+</span>
+      </summary>
+      <p className="max-w-3xl pt-3 pr-10 text-sm leading-6 text-slate-600">{children}</p>
+    </details>
   );
 }

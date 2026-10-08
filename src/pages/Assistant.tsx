@@ -21,8 +21,8 @@ const suggestions = [
 function Recommendation({ property, highlight }: { property: AssistantProperty; highlight?: boolean }) {
   const place = location([property.city, property.district]);
   return (
-    <div className={`flex gap-4 rounded-lg border p-3 ${highlight ? "border-blue-300 bg-blue-50/60" : "border-slate-200 bg-white"}`}>
-      <div className="h-20 w-28 shrink-0 overflow-hidden rounded-md bg-blue-50">
+    <div className={`flex gap-4 rounded-lg border p-3 ${highlight ? "border-slate-300 bg-slate-50/60" : "border-slate-200 bg-white"}`}>
+      <div className="h-20 w-28 shrink-0 overflow-hidden rounded-md bg-slate-50">
         {property.image_url && (
           <img
             src={property.image_url}
@@ -39,7 +39,7 @@ function Recommendation({ property, highlight }: { property: AssistantProperty; 
         <p className="text-slate-500">
           {[formatType(property.property_type), place].filter(Boolean).join(" · ")}
         </p>
-        <p className="font-semibold text-blue-700">
+        <p className="font-semibold text-slate-950">
           {formatPrice(property.price)} · {property.bedrooms ?? "–"} bed · {property.bathrooms ?? "–"} bath
         </p>
         {property.reasons.length > 0 && (
@@ -49,7 +49,7 @@ function Recommendation({ property, highlight }: { property: AssistantProperty; 
             ))}
           </div>
         )}
-        {property.caveats.length > 0 && <p className="pt-1 text-xs text-amber-700">Note: {property.caveats.join("; ")}</p>}
+        {property.caveats.length > 0 && <p className="pt-1 text-xs text-slate-600">Note: {property.caveats.join("; ")}</p>}
       </div>
     </div>
   );
@@ -111,7 +111,7 @@ export default function Assistant() {
                 <button
                   key={suggestion}
                   onClick={() => void ask(suggestion)}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 transition hover:border-blue-300 hover:bg-blue-50/50"
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50/50"
                 >
                   {suggestion}
                 </button>
@@ -123,7 +123,7 @@ export default function Assistant() {
         <div className="space-y-6" aria-live="polite">
           {turns.map((turn, index) => (
             <div key={index} className="space-y-3">
-              <div className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-blue-600 px-4 py-2.5 text-sm text-white">
+              <div className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-slate-950 px-4 py-2.5 text-sm text-white">
                 {turn.question}
               </div>
               {turn.error && <ErrorAlert message={turn.error} />}
@@ -147,7 +147,7 @@ export default function Assistant() {
           <div ref={endRef} />
         </div>
 
-        <form onSubmit={submit} className="sticky bottom-4 mt-6 flex gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-lg shadow-blue-900/5">
+        <form onSubmit={submit} className="sticky bottom-4 mt-6 flex gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-lg shadow-black/5">
           <label htmlFor="assistant-question" className="sr-only">
             Your question
           </label>
@@ -156,7 +156,7 @@ export default function Assistant() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Ask about properties, budgets or neighbourhoods…"
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm placeholder:text-slate-400 focus:border-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-950/20"
           />
           <Button type="submit" disabled={loading || question.trim().length < 3}>
             Ask

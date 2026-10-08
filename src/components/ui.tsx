@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAt
 
 const control =
   "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 " +
-  "focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20";
+  "focus:border-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-950/20";
 
 export function Field({ label, hint, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
   const id = useId();
@@ -55,11 +55,11 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" }) {
   const styles =
     variant === "primary"
-      ? "bg-blue-600 text-white hover:bg-blue-700"
+      ? "bg-slate-950 text-white hover:bg-slate-950"
       : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50";
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40 disabled:cursor-not-allowed disabled:opacity-60 ${styles} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-950/40 disabled:cursor-not-allowed disabled:opacity-60 ${styles} ${className}`}
       {...props}
     />
   );
@@ -68,7 +68,7 @@ export function Button({
 export function Spinner({ label = "Loading" }: { label?: string }) {
   return (
     <span role="status" className="inline-flex items-center gap-2 text-sm text-slate-500">
-      <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600" />
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-t-slate-950" />
       {label}
     </span>
   );
@@ -76,7 +76,7 @@ export function Spinner({ label = "Loading" }: { label?: string }) {
 
 export function ErrorAlert({ message }: { message: string }) {
   return (
-    <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <div role="alert" className="rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900">
       {message}
     </div>
   );
@@ -84,7 +84,7 @@ export function ErrorAlert({ message }: { message: string }) {
 
 export function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div className="border-b border-blue-100 bg-blue-50/60">
+    <div className="border-b border-slate-100 bg-slate-50/60">
       <div className="w-full px-[50px] py-10 sm:px-[100px]">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
         <p className="mt-2 max-w-2xl text-slate-600">{subtitle}</p>
@@ -95,7 +95,7 @@ export function PageHeader({ title, subtitle }: { title: string; subtitle: strin
 
 export function Chip({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">
+    <span className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-950 ring-1 ring-inset ring-slate-100">
       {children}
     </span>
   );

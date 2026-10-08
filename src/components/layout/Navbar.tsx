@@ -51,7 +51,7 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
     shrink-0 whitespace-nowrap rounded-lg px-2 py-2 text-xs font-medium transition sm:px-3 sm:text-sm
     ${
       isActive
-        ? "bg-blue-50 text-blue-700"
+        ? "bg-slate-50 text-slate-950"
         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
     }
   `;
@@ -66,12 +66,12 @@ export function Navbar() {
             to="/"
             className="flex shrink-0 items-center gap-2 text-lg font-bold text-slate-900"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-600 text-sm font-bold text-white shadow-sm">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-slate-950 text-sm font-bold text-white shadow-sm">
               E
             </span>
 
             <span>
-              Estate<span className="text-blue-600">AI</span>
+              Estate<span className="text-slate-950">AI</span>
             </span>
           </Link>
           <nav

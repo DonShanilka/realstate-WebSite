@@ -92,7 +92,7 @@ export default function PricePredictionPage() {
             {loading ? "Estimating…" : "Estimate price"}
           </Button>
           {status?.ready === false && (
-            <p className="text-sm text-amber-700">
+            <p className="text-sm text-slate-700">
               The model needs {status.minimum_training_records} historical listings; {status.usable_training_records} available.
             </p>
           )}
@@ -102,9 +102,9 @@ export default function PricePredictionPage() {
           {loading && <Spinner label="Calculating estimate" />}
           {error && <ErrorAlert message={error} />}
           {result && (
-            <div className="space-y-4 rounded-xl border border-blue-200 bg-blue-50/50 p-6">
+            <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-6">
               <div>
-                <p className="text-sm font-medium text-blue-700">Estimated market price</p>
+                <p className="text-sm font-medium text-slate-950">Estimated market price</p>
                 <p className="mt-1 text-4xl font-bold text-slate-900">{result.display.estimated_market_price}</p>
               </div>
               <div>
@@ -114,7 +114,7 @@ export default function PricePredictionPage() {
                   Covers about {Math.round(result.range_coverage * 100)}% of the model's past errors.
                 </p>
               </div>
-              <dl className="grid grid-cols-3 gap-3 border-t border-blue-100 pt-4 text-sm">
+              <dl className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-4 text-sm">
                 <div>
                   <dt className="text-slate-500">Listings used</dt>
                   <dd className="font-semibold text-slate-800">{result.training_rows}</dd>

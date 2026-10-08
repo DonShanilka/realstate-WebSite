@@ -28,7 +28,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
         }}
         role="link"
         tabIndex={0}
-        className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200/80 bg-white transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-900/10 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200/80 bg-white transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-900/10 focus:outline-none focus:ring-2 focus:ring-slate-950"
       >
         {/* Image */}
         <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
@@ -92,7 +92,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
                 }`,
               )}`}
               onClick={(event) => event.stopPropagation()}
-              className="text-sm font-semibold text-slate-600 transition hover:text-blue-700"
+              className="text-sm font-semibold text-slate-600 transition hover:text-slate-950"
             >
               Ask AI →
             </Link>
@@ -101,7 +101,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
               to={`/properties/${property.id}`}
               state={{ property }}
               onClick={(event) => event.stopPropagation()}
-              className="rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+              className="rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-950"
             >
               View Details
             </Link>
