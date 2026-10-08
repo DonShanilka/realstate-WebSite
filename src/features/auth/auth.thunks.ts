@@ -5,6 +5,7 @@ import type {
   LoginCredentials,
   RegisterPayload,
 } from "./auth.types";
+import { tokenStorage, readTokenUser } from "../../utils/storage";
 
 export const login = createAsyncThunk<
   AuthToken & { user: import("./auth.types").User | null },
@@ -12,7 +13,14 @@ export const login = createAsyncThunk<
   { rejectValue: string }
 >("auth/login", async (body, { rejectWithValue }) => {
   try {
-    return await authApi.login(body);
+    const token = await authApi.login(body);
+    tokenStorage.set(token.access_token);
+    const identity = readTokenUser(token.access_token);
+    let user: import("./auth.types").User | null = null;
+    if (identity.id) {
+      try { user = await authApi.me(identity.id); } catch { /* login still succeeds if the profile endpoint is unavailable */ }
+    }
+    return { ...token, user };
   } catch (e) {
     return rejectWithValue((e as Error).message);
   }

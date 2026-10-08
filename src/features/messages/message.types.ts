@@ -10,6 +10,7 @@ export interface Message {
 
 export interface MessagesState {
   conversations: Record<number, Message[]>;
+  inbox: Message[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }

@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchProfile, updateProfile } from "./profile.thunks";
 import type { ProfileState } from "./profile.types";
+import { loggedOut } from "../auth/auth.slice";
 
 const initialState: ProfileState = { user: null, status: "idle", error: null };
 
@@ -15,6 +16,7 @@ const slice = createSlice({
     },
   },
   extraReducers: (b) => {
+    b.addCase(loggedOut, (s) => { s.user = null; s.status = "idle"; s.error = null; });
     b.addCase(fetchProfile.pending, (s) => {
       s.status = "loading";
       s.error = null;

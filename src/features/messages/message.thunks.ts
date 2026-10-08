@@ -16,6 +16,14 @@ export const fetchConversation = createAsyncThunk<
   }
 });
 
+export const fetchMyMessages = createAsyncThunk<Message[], void, Config>(
+  "messages/inbox",
+  async (_, { rejectWithValue }) => {
+    try { return await messageApi.mine(); }
+    catch (e) { return rejectWithValue((e as Error).message); }
+  },
+);
+
 export const sendMessage = createAsyncThunk<
   Message,
   { receiver_id: number; property_id?: number; message: string },

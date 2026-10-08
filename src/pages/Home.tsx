@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { api } from "../api/api";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { fetchProperties } from "../features/properties/property.thunks";
 import { PropertyGrid } from "../components/property/PropertyCard";
 import { ErrorAlert, Spinner } from "../components/ui";
-import type { Property } from "../types";
 
 const tools = [
   {
@@ -35,24 +35,18 @@ const fallbackHeroImage =
 
 export default function Home() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { items, status, error } = useAppSelector((state) => state.properties);
   const [query, setQuery] = useState("");
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [totalProperties, setTotalProperties] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const properties = items.slice(0, 6);
+  const totalProperties = items.length;
+  const loading = status === "idle" || status === "loading";
   const [heroImageFailed, setHeroImageFailed] = useState(false);
   const heroImage = properties.find((property) => property.image_url)?.image_url;
 
   useEffect(() => {
-    api
-      .listProperties()
-      .then((list) => {
-        setTotalProperties(list.length);
-        setProperties(list.slice(0, 6));
-      })
-      .catch((cause: Error) => setError(cause.message))
-      .finally(() => setLoading(false));
-  }, []);
+    if (status === "idle") void dispatch(fetchProperties());
+  }, [dispatch, status]);
 
   function onSubmit(event: FormEvent) {
     event.preventDefault();

@@ -6,6 +6,7 @@ import {
   updateBookingStatus,
 } from "./booking.thunks";
 import type { BookingState } from "./booking.types";
+import { loggedOut } from "../auth/auth.slice";
 
 const initialState: BookingState = { items: [], status: "idle", error: null };
 
@@ -20,6 +21,7 @@ const slice = createSlice({
     },
   },
   extraReducers: (b) => {
+    b.addCase(loggedOut, (s) => { s.items = []; s.status = "idle"; s.error = null; });
     b.addCase(fetchBookings.pending, (s) => {
       s.status = "loading";
       s.error = null;

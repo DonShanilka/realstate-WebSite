@@ -20,7 +20,9 @@ export const addFavorite = createAsyncThunk<Favorite | { property_id: number; me
   async (id, { rejectWithValue }) => {
     try {
       const saved = await favoritesApi.add(id);
-      return "property_id" in saved ? saved : { property_id: id, message: saved.message };
+      if ("property_id" in saved) return saved;
+      const current = (await favoritesApi.list()).find((favorite) => favorite.property_id === id);
+      return current ?? { property_id: id, message: saved.message };
     } catch (e) {
       return rejectWithValue((e as Error).message);
     }

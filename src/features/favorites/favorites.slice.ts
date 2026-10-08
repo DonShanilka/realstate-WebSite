@@ -5,6 +5,7 @@ import {
   removeFavorite,
 } from "./favorites.thunks";
 import type { FavoritesState } from "./favorites.types";
+import { loggedOut } from "../auth/auth.slice";
 
 const initialState: FavoritesState = { items: [], status: "idle", error: null };
 
@@ -19,6 +20,7 @@ const slice = createSlice({
     },
   },
   extraReducers: (b) => {
+    b.addCase(loggedOut, (s) => { s.items = []; s.status = "idle"; s.error = null; });
     b.addCase(fetchFavorites.pending, (s) => {
       s.status = "loading";
       s.error = null;

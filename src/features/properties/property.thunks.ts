@@ -4,7 +4,7 @@ import type { Property } from "../../types";
 
 type ThunkConfig = { rejectValue: string };
 
-export const fetchProperties = createAsyncThunk<Property[], void, ThunkConfig>(
+export const fetchProperties = createAsyncThunk<Property[], void, { state: { properties: { status: string } }; rejectValue: string }>(
   "properties/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
@@ -13,6 +13,7 @@ export const fetchProperties = createAsyncThunk<Property[], void, ThunkConfig>(
       return rejectWithValue((e as Error).message);
     }
   },
+  { condition: (_, { getState }) => getState().properties.status !== "loading" },
 );
 
 export const fetchProperty = createAsyncThunk<Property, number, ThunkConfig>(
