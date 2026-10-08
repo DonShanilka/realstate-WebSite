@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { api } from "../api";
 import { toNumber } from "../format";
 import { Button, ErrorAlert, Field, PageHeader, SelectField, Spinner } from "../components/ui";
-import type { PriceModelStatus, PricePrediction } from "../types";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { fetchPredictionStatus, predictPrice } from "../features/pricePrediction/prediction.slice";
 
 const initial = {
   city: "Colombo",
@@ -16,32 +16,29 @@ const initial = {
 };
 
 export default function PricePredictionPage() {
+  const dispatch = useAppDispatch();
+  const { result, model: status, status: requestStatus, error: requestError } = useAppSelector((state) => state.prediction);
   const [form, setForm] = useState(initial);
-  const [result, setResult] = useState<PricePrediction | null>(null);
-  const [status, setStatus] = useState<PriceModelStatus | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [validationError, setValidationError] = useState("");
+  const loading = requestStatus === "loading";
+  const error = validationError || requestError || "";
 
   useEffect(() => {
-    api.priceModelStatus().then(setStatus).catch(() => setStatus(null));
-  }, []);
+    if (!status) void dispatch(fetchPredictionStatus());
+  }, [dispatch, status]);
 
   const set = (key: keyof typeof initial) => (e: { target: { value: string } }) =>
     setForm((current) => ({ ...current, [key]: e.target.value }));
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    setError("");
-    setResult(null);
+    setValidationError("");
     const bedrooms = toNumber(form.bedrooms);
     const bathrooms = toNumber(form.bathrooms);
     if (!form.city.trim() || bedrooms === undefined || bathrooms === undefined) {
-      return setError("City, bedrooms and bathrooms are required.");
+      return setValidationError("City, bedrooms and bathrooms are required.");
     }
-    setLoading(true);
-    try {
-      setResult(
-        await api.predictPrice({
+    void dispatch(predictPrice({
           city: form.city.trim(),
           district: form.district.trim() || undefined,
           property_type: form.property_type,
@@ -49,13 +46,7 @@ export default function PricePredictionPage() {
           bathrooms,
           house_area_sqft: toNumber(form.house_area_sqft),
           land_area_perches: toNumber(form.land_area_perches),
-        }),
-      );
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
+        }));
   }
 
   return (

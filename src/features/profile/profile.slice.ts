@@ -29,11 +29,9 @@ const slice = createSlice({
         s.status = "failed";
         s.error = a.payload ?? "Could not load profile";
       });
-    b.addCase(updateProfile.fulfilled, (s, a) => {
-      s.user = a.payload;
-    }).addCase(updateProfile.rejected, (s, a) => {
-      s.error = a.payload ?? "Could not update profile";
-    });
+    b.addCase(updateProfile.pending, (s) => { s.status = "loading"; s.error = null; })
+      .addCase(updateProfile.fulfilled, (s, a) => { s.status = "succeeded"; s.user = a.payload; })
+      .addCase(updateProfile.rejected, (s, a) => { s.status = "failed"; s.error = a.payload ?? "Could not update profile"; });
   },
 });
 

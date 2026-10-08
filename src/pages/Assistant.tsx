@@ -1,16 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { api } from "../api/api";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { askAssistant } from "../features/assistant/assistant.slice";
 import { formatPrice, formatType, location } from "../utils/format";
 import { Button, Chip, ErrorAlert, PageHeader, Spinner } from "../components/ui";
-import type { AssistantProperty, AssistantResponse } from "../types";
-
-interface Turn {
-  question: string;
-  response?: AssistantResponse;
-  error?: string;
-}
+import type { AssistantProperty } from "../types";
 
 const suggestions = [
   "Which property is best for a family of four?",
@@ -57,10 +52,11 @@ function Recommendation({ property, highlight }: { property: AssistantProperty; 
 
 export default function Assistant() {
   const [params] = useSearchParams();
+  const dispatch = useAppDispatch();
+  const { turns, status, error } = useAppSelector((state) => state.assistant);
   const initialQuestion = params.get("ask") ?? "";
   const [question, setQuestion] = useState("");
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const [loading, setLoading] = useState(false);
+  const loading = status === "loading";
   const endRef = useRef<HTMLDivElement>(null);
   const autoAsked = useRef<string | null>(null);
 
@@ -68,16 +64,7 @@ export default function Assistant() {
     const trimmed = text.trim();
     if (trimmed.length < 3 || loading) return;
     setQuestion("");
-    setLoading(true);
-    setTurns((current) => [...current, { question: trimmed }]);
-    let update: Partial<Turn>;
-    try {
-      update = { response: await api.askAssistant(trimmed) };
-    } catch (e) {
-      update = { error: (e as Error).message };
-    }
-    setTurns((current) => current.map((turn, index) => (index === current.length - 1 ? { ...turn, ...update } : turn)));
-    setLoading(false);
+    await dispatch(askAssistant(trimmed));
   }
 
   useEffect(() => {
@@ -89,7 +76,7 @@ export default function Assistant() {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [turns]);
+  }, [turns, loading]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -122,12 +109,10 @@ export default function Assistant() {
 
         <div className="space-y-6" aria-live="polite">
           {turns.map((turn, index) => (
-            <div key={index} className="space-y-3">
+            <div key={`${turn.question}-${index}`} className="space-y-3">
               <div className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-slate-950 px-4 py-2.5 text-sm text-white">
                 {turn.question}
               </div>
-              {turn.error && <ErrorAlert message={turn.error} />}
-              {!turn.response && !turn.error && <Spinner label="Thinking" />}
               {turn.response && (
                 <div className="space-y-3 rounded-2xl rounded-bl-sm border border-slate-200 bg-white p-4">
                   <p className="text-sm leading-relaxed text-slate-800">{turn.response.answer}</p>
@@ -144,6 +129,8 @@ export default function Assistant() {
               )}
             </div>
           ))}
+          {loading && <Spinner label="Thinking" />}
+          {error && <ErrorAlert message={error} />}
           <div ref={endRef} />
         </div>
 

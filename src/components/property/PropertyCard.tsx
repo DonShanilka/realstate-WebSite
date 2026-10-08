@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { formatPrice, formatType, location } from "../../utils/format";
 import type { Property } from "../../types";
 import { Chip } from "../ui";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { addFavorite, fetchFavorites, removeFavorite } from "../../features/favorites/favorites.thunks";
 
 interface PropertyCardProps {
   property: Property;
@@ -11,6 +13,13 @@ interface PropertyCardProps {
 export function PropertyCard({ property }: PropertyCardProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { token } = useAppSelector((state) => state.auth);
+  const { items: favorites, status: favoriteStatus } = useAppSelector((state) => state.favorites);
+  const isFavorite = favorites.some((favorite) => favorite.property_id === property.id);
+  useEffect(() => {
+    if (token && favoriteStatus === "idle") void dispatch(fetchFavorites());
+  }, [dispatch, favoriteStatus, token]);
 
   const place = location([property.city, property.district]);
   const fallbackImage =
@@ -48,6 +57,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
               {property.status.toLowerCase()}
             </span>
           )}
+          <button type="button" title={token ? (isFavorite ? "Remove from favorites" : "Add to favorites") : "Sign in to save properties"} aria-label={token ? (isFavorite ? "Remove from favorites" : "Add to favorites") : "Sign in to save properties"} disabled={!token} onClick={(event) => { event.stopPropagation(); if (isFavorite) void dispatch(removeFavorite(property.id)); else void dispatch(addFavorite(property.id)); }} className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-xl text-slate-900 shadow transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60">{isFavorite ? "♥" : "♡"}</button>
         </div>
 
         {/* Content */}

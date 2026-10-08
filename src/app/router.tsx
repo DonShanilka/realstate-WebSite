@@ -14,6 +14,8 @@ import BookViewing from "../pages/bookings/BookViewing";
 import MyBookings from "../pages/bookings/MyBookings";
 import Messages from "../pages/messages/Messages";
 import Profile from "../pages/profile/Profile";
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +71,8 @@ export const router = createBrowserRouter([
         path: "profile",
         element: <Profile />,
       },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
 
       {
         path: "*",

@@ -34,10 +34,10 @@ const slice = createSlice({
         s.status = "failed";
         s.error = a.payload ?? "Could not load bookings";
       });
-    b.addCase(createBooking.fulfilled, (s, a) => {
-      s.items.unshift(a.payload);
-    })
-      .addCase(updateBookingStatus.fulfilled, (s, a) => {
+    b.addCase(createBooking.pending, (s) => { s.status = "loading"; s.error = null; })
+      .addCase(createBooking.fulfilled, (s, a) => { s.status = "succeeded"; s.items.unshift(a.payload); })
+      .addCase(createBooking.rejected, (s, a) => { s.status = "failed"; s.error = a.payload ?? "Could not create booking"; });
+    b.addCase(updateBookingStatus.fulfilled, (s, a) => {
         s.items = s.items.map((item) =>
           item.id === a.payload.id ? a.payload : item,
         );

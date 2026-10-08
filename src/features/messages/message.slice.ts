@@ -35,11 +35,16 @@ const slice = createSlice({
         s.error = a.payload ?? "Could not load messages";
       });
     b.addCase(sendMessage.fulfilled, (s, a) => {
+      s.status = "succeeded";
       const conversation = s.conversations[a.meta.arg.receiver_id] ??= [];
       if (!conversation.some((item) => item.id === a.payload.id)) conversation.push(a.payload);
       s.inbox.unshift(a.payload);
-    });
-    b.addCase(fetchMyMessages.fulfilled, (s, a) => { s.inbox = a.payload; });
+    })
+      .addCase(sendMessage.pending, (s) => { s.status = "loading"; s.error = null; })
+      .addCase(sendMessage.rejected, (s, a) => { s.status = "failed"; s.error = a.payload ?? "Could not send message"; });
+    b.addCase(fetchMyMessages.pending, (s) => { s.status = "loading"; s.error = null; })
+      .addCase(fetchMyMessages.fulfilled, (s, a) => { s.status = "succeeded"; s.inbox = a.payload; })
+      .addCase(fetchMyMessages.rejected, (s, a) => { s.status = "failed"; s.error = a.payload ?? "Could not load messages"; });
   },
 });
 

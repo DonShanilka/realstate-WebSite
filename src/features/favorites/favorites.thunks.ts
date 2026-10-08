@@ -4,7 +4,7 @@ import type { Favorite } from "./favorites.types";
 
 type Config = { rejectValue: string };
 
-export const fetchFavorites = createAsyncThunk<Favorite[], void, Config>(
+export const fetchFavorites = createAsyncThunk<Favorite[], void, { state: { favorites: { status: string } }; rejectValue: string }>(
   "favorites/list",
   async (_, { rejectWithValue }) => {
     try {
@@ -13,6 +13,7 @@ export const fetchFavorites = createAsyncThunk<Favorite[], void, Config>(
       return rejectWithValue((e as Error).message);
     }
   },
+  { condition: (_, { getState }) => getState().favorites.status !== "loading" },
 );
 
 export const addFavorite = createAsyncThunk<Favorite | { property_id: number; message: string }, number, Config>(

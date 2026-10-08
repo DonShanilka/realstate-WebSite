@@ -1,4 +1,7 @@
 import { NavLink, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../features/auth/auth.slice";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 
 type NavigationLink = {
   to: string;
@@ -58,6 +61,9 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 export function Navbar() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { token, user } = useAppSelector((state) => state.auth);
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="w-full px-[50px] sm:px-[100px]">
@@ -89,6 +95,7 @@ export function Navbar() {
               </NavLink>
             ))}
           </nav>
+          {token ? <button onClick={() => { dispatch(logout()); navigate("/"); }} className="shrink-0 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 sm:text-sm" title={user?.full_name ? `Signed in as ${user.full_name}` : "Sign out"}>Sign out</button> : <Link to="/login" className="shrink-0 rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white sm:text-sm">Sign in</Link>}
         </div>
       </div>
     </header>

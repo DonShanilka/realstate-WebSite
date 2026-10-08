@@ -1,41 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { api } from "../api/api";
 import { ErrorAlert, Spinner } from "../components/ui";
 import { formatPrice, formatType, location } from "../utils/format";
 import type { Property } from "../types";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { fetchProperty } from "../features/properties/property.thunks";
 
 export default function PropertyDetails() {
   const { id } = useParams();
   const route = useLocation();
   const initialProperty = (route.state as { property?: Property } | null)?.property;
-  const [property, setProperty] = useState<Property | null>(
-    initialProperty?.id === Number(id) ? initialProperty : null,
-  );
-  const [loading, setLoading] = useState(!property);
-  const [error, setError] = useState("");
+  const dispatch = useAppDispatch();
+  const { selected, status, error } = useAppSelector((state) => state.properties);
+  const requestedId = Number(id);
+  const property = initialProperty?.id === requestedId ? initialProperty : selected?.id === requestedId ? selected : null;
+  const loading = !property && status !== "failed";
 
   useEffect(() => {
-    if (initialProperty?.id === Number(id)) {
-      setProperty(initialProperty);
-      setLoading(false);
-      setError("");
-      return;
-    }
-    let active = true;
-    setProperty(null);
-    setLoading(true);
-    api.listProperties()
-      .then((properties) => {
-        if (!active) return;
-        const found = properties.find((item) => item.id === Number(id));
-        if (found) setProperty(found);
-        else setError("This property could not be found.");
-      })
-      .catch((cause: Error) => active && setError(cause.message))
-      .finally(() => active && setLoading(false));
-    return () => { active = false; };
-  }, [id, initialProperty]);
+    if (initialProperty?.id === requestedId || selected?.id === requestedId || !Number.isFinite(requestedId)) return;
+    void dispatch(fetchProperty(requestedId));
+  }, [dispatch, requestedId, initialProperty, selected?.id]);
 
   if (loading) return <div className="w-full px-[50px] py-12 sm:px-[100px]"><Spinner label="Loading property" /></div>;
   if (error || !property) {
@@ -114,6 +98,7 @@ export default function PropertyDetails() {
               <SummaryRow label="District" value={property.district || "Not specified"} />
             </dl>
             <Link to={`/assistant?ask=${encodeURIComponent(`Tell me everything about ${property.title}`)}`} className="mt-4 flex w-full items-center justify-center rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-black">Ask AI about this property</Link>
+            <Link to={`/book-viewing?property_id=${property.id}`} className="mt-2 flex w-full items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50">Book a viewing</Link>
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-4">
