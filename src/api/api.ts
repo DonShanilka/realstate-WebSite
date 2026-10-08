@@ -1,3 +1,5 @@
+import { jsonBody, request } from "./client";
+export { ApiError } from "./client";
 import type {
   AssistantResponse,
   NaturalSearchResult,
@@ -9,35 +11,8 @@ import type {
   SearchResult,
 } from "../types";
 
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://127.0.0.1:8000";
-
-export class ApiError extends Error {}
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  let response: Response;
-  try {
-    response = await fetch(`${BASE_URL}${path}`, {
-      ...init,
-      headers: { "Content-Type": "application/json", ...init?.headers },
-    });
-  } catch {
-    throw new ApiError("Cannot reach the server. Make sure the backend is running on " + BASE_URL + ".");
-  }
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => null);
-    const detail = body?.detail;
-    const message =
-      typeof detail === "string"
-        ? detail
-        : detail?.message ?? (Array.isArray(detail) ? "Please check the highlighted fields." : "Something went wrong.");
-    throw new ApiError(message);
-  }
-  return response.json() as Promise<T>;
-}
-
 const post = <T>(path: string, body: unknown) =>
-  request<T>(path, { method: "POST", body: JSON.stringify(body) });
+  request<T>(path, { method: "POST", ...jsonBody(body) });
 
 export const api = {
   async listProperties(): Promise<Property[]> {

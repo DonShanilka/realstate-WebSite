@@ -7,7 +7,7 @@ import type {
 } from "./auth.types";
 
 export const login = createAsyncThunk<
-  AuthToken,
+  AuthToken & { user: import("./auth.types").User | null },
   LoginCredentials,
   { rejectValue: string }
 >("auth/login", async (body, { rejectWithValue }) => {

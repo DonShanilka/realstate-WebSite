@@ -28,12 +28,11 @@ const slice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout(state) {
+    loggedOut(state) {
       state.token = null;
       state.user = null;
       state.status = "idle";
       state.error = null;
-      tokenStorage.clear();
     },
     clearAuthError(state) {
       state.error = null;
@@ -48,13 +47,7 @@ const slice = createSlice({
       .addCase(login.fulfilled, (s, a) => {
         s.status = "succeeded";
         s.token = a.payload.access_token;
-        tokenStorage.set(a.payload.access_token);
-        const who = readTokenUser(a.payload.access_token);
-        if (who.id)
-          s.user = {
-            id: who.id,
-            role: (who.role ?? "BUYER") as User["role"],
-          } as User;
+        s.user = a.payload.user;
       })
       .addCase(login.rejected, (s, a) => {
         s.status = "failed";
@@ -76,5 +69,6 @@ const slice = createSlice({
       });
   },
 });
-export const { logout, clearAuthError } = slice.actions;
+export const { loggedOut, clearAuthError } = slice.actions;
+export const logout = () => (dispatch: (action: ReturnType<typeof loggedOut>) => void) => { tokenStorage.clear(); dispatch(loggedOut()); };
 export default slice.reducer;

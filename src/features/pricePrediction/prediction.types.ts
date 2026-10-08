@@ -1,3 +1,14 @@
-import type { PriceModelStatus, PricePrediction, PricePredictionRequest } from "../../types";
+import type {
+  PriceModelStatus,
+  PricePrediction,
+  PricePredictionRequest,
+} from "../../types";
+
 export type { PriceModelStatus, PricePrediction, PricePredictionRequest };
-export interface PredictionState { statusInfo: PriceModelStatus | null; result: PricePrediction | null; status: "idle" | "loading" | "succeeded" | "failed"; error: string | null }
+
+export interface PredictionState {
+  model: PriceModelStatus | null;
+  result: PricePrediction | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+}

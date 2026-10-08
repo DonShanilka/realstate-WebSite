@@ -2,8 +2,8 @@ export type UserRole = "ADMIN" | "AGENT" | "OWNER" | "BUYER";
 
 export interface User {
   id: number;
-  email: string;
-  full_name: string;
+  email?: string;
+  full_name?: string;
   role: UserRole;
   phone?: string | null;
   profile_image?: string | null;
