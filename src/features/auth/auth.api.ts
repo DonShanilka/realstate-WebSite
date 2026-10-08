@@ -18,5 +18,9 @@ export const authApi = {
   updateProfile: (
     id: number,
     body: Partial<Pick<User, "full_name" | "phone" | "profile_image">>,
-  ) => request<{ message: string; data: User }>(`/users/${id}`, { method: "PUT", ...jsonBody(body) }).then((result) => result.data),
+  ) =>
+    request<{ message: string; data: User }>(`/users/${id}`, {
+      method: "PUT",
+      ...jsonBody(body),
+    }).then((result) => result.data),
 };
