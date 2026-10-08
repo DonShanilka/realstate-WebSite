@@ -75,7 +75,7 @@ export function Navbar() {
             </span>
           </Link>
           <nav
-            className="ml-auto flex min-w-0 items-center justify-end gap-1 overflow-x-auto py-2"
+            className="ml-auto flex min-w-0 items-center justify-start gap-1 overflow-x-auto py-2 sm:justify-end"
             aria-label="Main navigation"
           >
             {navigationLinks.map((link) => (

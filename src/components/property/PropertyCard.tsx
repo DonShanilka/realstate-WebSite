@@ -13,6 +13,8 @@ export function PropertyCard({ property }: PropertyCardProps) {
   const navigate = useNavigate();
 
   const place = location([property.city, property.district]);
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
 
   return (
       <article
@@ -26,44 +28,43 @@ export function PropertyCard({ property }: PropertyCardProps) {
         }}
         role="link"
         tabIndex={0}
-        className="group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-900/5 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200/80 bg-white transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-900/10 focus:outline-none focus:ring-2 focus:ring-blue-600"
       >
         {/* Image */}
-        <div className="aspect-[16/10] overflow-hidden bg-blue-50">
-          {property.image_url && !imageFailed ? (
-            <img
-              src={property.image_url}
-              alt={property.title}
-              loading="lazy"
-              onError={() => setImageFailed(true)}
-              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-            />
-          ) : (
-            <div className="grid h-full place-items-center text-sm text-blue-300">
-              No photo
-            </div>
+        <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
+          <img
+            src={property.image_url && !imageFailed ? property.image_url : fallbackImage}
+            alt={property.title}
+            loading="lazy"
+            onError={() => setImageFailed(true)}
+            className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-slate-950/10" />
+          <div className="absolute left-4 top-4">
+            <Chip>{formatType(property.property_type)}</Chip>
+          </div>
+          {property.status && (
+            <span className="absolute bottom-4 left-4 rounded-full border border-white/30 bg-slate-950/25 px-3 py-1 text-xs font-medium capitalize text-white backdrop-blur-sm">
+              {property.status.toLowerCase()}
+            </span>
           )}
         </div>
 
         {/* Content */}
-        <div className="space-y-3 p-4">
+        <div className="space-y-3 p-5">
           {/* Title + Type */}
-          <div className="flex items-start justify-between gap-3">
-            <h3 className="font-semibold text-slate-900">{property.title}</h3>
-
-            <Chip>{formatType(property.property_type)}</Chip>
-          </div>
+          <h3 className="line-clamp-1 text-lg font-semibold tracking-tight text-slate-900">{property.title}</h3>
 
           {/* Location */}
-          {place && <p className="text-sm text-slate-500">{place}</p>}
+          {place && <p className="-mt-1 text-sm text-slate-500">⌖ <span className="ml-1">{place}</span></p>}
 
           {/* Price */}
-          <p className="text-lg font-bold text-blue-700">
+          <p className="text-xl font-bold tracking-tight text-slate-900">
             {formatPrice(property.price)}
           </p>
 
           {/* Features */}
-          <dl className="flex gap-4 border-t border-slate-100 pt-3 text-sm text-slate-600">
+          <dl className="flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-100 pt-3 text-sm text-slate-500">
             <div>
               <dt className="sr-only">Bedrooms</dt>
               <dd>{property.bedrooms ?? "–"} bed</dd>
@@ -91,7 +92,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
                 }`,
               )}`}
               onClick={(event) => event.stopPropagation()}
-              className="text-sm font-medium text-blue-600 hover:text-blue-800"
+              className="text-sm font-semibold text-slate-600 transition hover:text-blue-700"
             >
               Ask AI →
             </Link>
@@ -100,7 +101,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
               to={`/properties/${property.id}`}
               state={{ property }}
               onClick={(event) => event.stopPropagation()}
-              className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+              className="rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
               View Details
             </Link>
