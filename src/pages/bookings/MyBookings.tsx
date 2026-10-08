@@ -6,14 +6,17 @@ import { fetchProperties } from "../../features/properties/property.thunks";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { formatPrice } from "../../utils/format";
 export default function MyBookings() {
+
   const dispatch = useAppDispatch();
   const auth = useAppSelector((state) => state.auth);
   const bookings = useAppSelector((state) => state.bookings);
   const properties = useAppSelector((state) => state.properties.items);
+
   useEffect(() => {
     if (auth.token && bookings.status === "idle") void dispatch(fetchBookings());
     if (auth.token && properties.length === 0) void dispatch(fetchProperties());
   }, [auth.token, bookings.status, dispatch, properties.length]);
+
   return (
     <main className="w-full px-[50px] py-10 sm:px-[100px]">
       <div className="mb-8">

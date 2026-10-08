@@ -48,11 +48,21 @@ export default function Search() {
   const [mode, setMode] = useState<Mode>("natural");
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState(emptyFilters);
-  const outcome: Outcome | null = search.result ? {
-    properties: search.result.data,
-    message: "message" in search.result ? search.result.message : search.result.total ? `Found ${search.result.total} properties.` : "No properties match these filters.",
-    parsed: "parsed_filters" in search.result ? search.result.parsed_filters : undefined,
-  } : null;
+  const outcome: Outcome | null = search.result
+    ? {
+        properties: search.result.data,
+        message:
+          "message" in search.result
+            ? search.result.message
+            : search.result.total
+              ? `Found ${search.result.total} properties.`
+              : "No properties match these filters.",
+        parsed:
+          "parsed_filters" in search.result
+            ? search.result.parsed_filters
+            : undefined,
+      }
+    : null;
   const loading = search.status === "loading";
   const error = search.error ?? "";
 
@@ -86,7 +96,11 @@ export default function Search() {
     event.preventDefault();
     if (mode === "natural") {
       if (query.trim().length < 3)
-        return void dispatch(setSearchError("Please describe what you are looking for (at least 3 characters)."));
+        return void dispatch(
+          setSearchError(
+            "Please describe what you are looking for (at least 3 characters).",
+          ),
+        );
       void runNatural(query.trim());
     } else {
       void runFilters();

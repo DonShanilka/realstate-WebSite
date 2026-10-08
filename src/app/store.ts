@@ -10,7 +10,17 @@ import assistant from "../features/assistant/assistant.slice";
 import prediction from "../features/pricePrediction/prediction.slice";
 
 export const store = configureStore({
-  reducer: { auth, properties, search, favorites, bookings, messages, profile, assistant, prediction },
+  reducer: {
+    auth,
+    properties,
+    search,
+    favorites,
+    bookings,
+    messages,
+    profile,
+    assistant,
+    prediction,
+  },
   devTools: import.meta.env.DEV,
 });
 export type RootState = ReturnType<typeof store.getState>;
