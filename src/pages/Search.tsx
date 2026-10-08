@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { api } from "../api";
 import { formatPrice, toNumber } from "../format";
 import { PropertyGrid } from "../components/property/PropertyCard";
 import {
@@ -15,6 +14,9 @@ import {
   TextArea,
 } from "../components/ui";
 import type { Property, SearchFilters } from "../types";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { runNaturalSearch, runSearch } from "../features/search/search.thunks";
+import { setSearchError } from "../features/search/search.slice";
 
 type Mode = "natural" | "filters";
 
@@ -40,34 +42,25 @@ const emptyFilters = {
 
 export default function Search() {
   const [params] = useSearchParams();
+  const dispatch = useAppDispatch();
+  const search = useAppSelector((state) => state.search);
   const initialQuery = params.get("q") ?? "";
   const [mode, setMode] = useState<Mode>("natural");
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState(emptyFilters);
-  const [outcome, setOutcome] = useState<Outcome | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const outcome: Outcome | null = search.result ? {
+    properties: search.result.data,
+    message: "message" in search.result ? search.result.message : search.result.total === 0 ? "No properties match these filters." : `Found ${search.result.total} properties.`,
+    parsed: "parsed_filters" in search.result ? search.result.parsed_filters : undefined,
+  } : null;
+  const loading = search.status === "loading";
+  const error = search.error ?? "";
 
   async function runNatural(text: string) {
-    setLoading(true);
-    setError("");
-    try {
-      const result = await api.naturalSearch(text);
-      setOutcome({
-        properties: result.data,
-        message: result.message,
-        parsed: result.parsed_filters,
-      });
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
+    void dispatch(runNaturalSearch(text));
   }
 
   async function runFilters() {
-    setLoading(true);
-    setError("");
     const payload: SearchFilters = {
       keyword: filters.keyword.trim() || undefined,
       city: filters.city.trim() || undefined,
@@ -81,20 +74,7 @@ export default function Search() {
       max_area: toNumber(filters.max_area),
       sort: filters.sort as SearchFilters["sort"],
     };
-    try {
-      const result = await api.search(payload);
-      setOutcome({
-        properties: result.data,
-        message:
-          result.total === 0
-            ? "No properties match these filters."
-            : `Found ${result.total} properties.`,
-      });
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
+    void dispatch(runSearch(payload));
   }
 
   useEffect(() => {
@@ -106,9 +86,7 @@ export default function Search() {
     event.preventDefault();
     if (mode === "natural") {
       if (query.trim().length < 3)
-        return setError(
-          "Please describe what you are looking for (at least 3 characters).",
-        );
+        return dispatch(setSearchError("Please describe what you are looking for (at least 3 characters)."));
       void runNatural(query.trim());
     } else {
       void runFilters();
