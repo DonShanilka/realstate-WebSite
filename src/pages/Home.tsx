@@ -59,7 +59,7 @@ export default function Home() {
       />
       <LatestProjectsSection projects={latestProjects} loading={loading} />
       <OurAgentsSection />
-      <ContactAgentSection />
+      {/* <ContactAgentSection /> */}
       <TestimonialsSection />
       <FAQSection />
       <DreamHomeSection />
