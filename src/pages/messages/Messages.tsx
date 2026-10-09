@@ -8,7 +8,6 @@ import {
 } from "../../features/messages/message.thunks";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 export default function Messages() {
-
   const dispatch = useAppDispatch();
   const { token, user } = useAppSelector((state) => state.auth);
   const messages = useAppSelector((state) => state.messages);

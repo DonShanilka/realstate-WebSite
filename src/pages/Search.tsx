@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SearchControls } from "../components/search/SearchControls";
-import type { SearchFilterValues, SearchMode } from "../components/search/SearchControls";
+import type {
+  SearchFilterValues,
+  SearchMode,
+} from "../components/search/SearchControls";
 import { SearchResults } from "../components/search/SearchResults";
 import { runNaturalSearch, runSearch } from "../features/search/search.thunks";
 import { setSearchError } from "../features/search/search.slice";
@@ -44,10 +47,12 @@ export default function Search() {
         ? `Found ${result.total} properties.`
         : "No properties match these filters."
     : undefined;
-  const parsed = result && "parsed_filters" in result ? result.parsed_filters : undefined;
+  const parsed =
+    result && "parsed_filters" in result ? result.parsed_filters : undefined;
 
   useEffect(() => {
-    if (initialQuery.trim().length >= 3) void dispatch(runNaturalSearch(initialQuery.trim()));
+    if (initialQuery.trim().length >= 3)
+      void dispatch(runNaturalSearch(initialQuery.trim()));
   }, [dispatch, initialQuery]);
 
   useEffect(() => {
@@ -58,7 +63,11 @@ export default function Search() {
     event.preventDefault();
     if (mode === "natural") {
       if (query.trim().length < 3) {
-        dispatch(setSearchError("Please describe what you are looking for (at least 3 characters)."));
+        dispatch(
+          setSearchError(
+            "Please describe what you are looking for (at least 3 characters).",
+          ),
+        );
         return;
       }
       void dispatch(runNaturalSearch(query.trim()));
@@ -105,7 +114,9 @@ export default function Search() {
           parsed={parsed}
           searching={search.status === "loading"}
           searchError={search.error ?? ""}
-          loadingInventory={properties.status === "idle" || properties.status === "loading"}
+          loadingInventory={
+            properties.status === "idle" || properties.status === "loading"
+          }
           inventoryError={properties.error}
         />
       </main>

@@ -25,10 +25,6 @@ export default function Home() {
     .sort((left, right) => right.id - left.id)
     .slice(0, 3);
 
-  const heroImage = featuredProperties.find(
-    (property) => property.image_url,
-  )?.image_url;
-
   useEffect(() => {
     if (status === "idle") void dispatch(fetchProperties());
   }, [dispatch, status]);
@@ -41,11 +37,7 @@ export default function Home() {
 
   return (
     <>
-      <HomeHero
-        image={heroImage}
-        loading={loading}
-        propertyCount={items.length}
-      />
+      <HomeHero loading={loading} propertyCount={items.length} />
       <DiscoverSection
         query={query}
         onQueryChange={setQuery}

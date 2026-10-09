@@ -51,7 +51,11 @@ export function PropertyCard({ property }: PropertyCardProps) {
     >
       <div className="relative aspect-[1.46] w-full overflow-hidden rounded-3xl bg-slate-100">
         <img
-          src={property.image_url && !imageFailed ? property.image_url : propertyPlaceholder}
+          src={
+            property.image_url && !imageFailed
+              ? property.image_url
+              : propertyPlaceholder
+          }
           alt={property.title}
           loading="lazy"
           onError={() => setImageFailed(true)}
@@ -90,10 +94,21 @@ export function PropertyCard({ property }: PropertyCardProps) {
           {property.title}
         </h3>
         <div className="mt-3 flex min-h-[68px] flex-wrap content-start gap-2">
-          {[formatType(property.property_type), property.bedrooms ? `${property.bedrooms} bedrooms` : null, property.area_size ? `${property.area_size.toLocaleString()} sq.ft` : null, place, property.status ? property.status.toLowerCase() : null]
+          {[
+            formatType(property.property_type),
+            property.bedrooms ? `${property.bedrooms} bedrooms` : null,
+            property.area_size
+              ? `${property.area_size.toLocaleString()} sq.ft`
+              : null,
+            place,
+            property.status ? property.status.toLowerCase() : null,
+          ]
             .filter((tag): tag is string => Boolean(tag))
             .map((tag) => (
-              <span key={tag} className="h-fit rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 sm:text-sm">
+              <span
+                key={tag}
+                className="h-fit rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 sm:text-sm"
+              >
                 {tag}
               </span>
             ))}
@@ -102,7 +117,8 @@ export function PropertyCard({ property }: PropertyCardProps) {
           {formatPrice(property.price)}
         </p>
         <p className="mt-2 min-h-12 line-clamp-2 text-sm leading-6 text-slate-600">
-          {property.description || `Explore ${property.title}${place ? ` in ${place}` : ""} and view the full property details.`}
+          {property.description ||
+            `Explore ${property.title}${place ? ` in ${place}` : ""} and view the full property details.`}
         </p>
         <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           <Link

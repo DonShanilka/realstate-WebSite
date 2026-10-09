@@ -36,9 +36,16 @@ export function DreamHomeSection() {
           <div className="absolute -right-16 -top-20 h-80 w-80 rounded-full border border-white/20" />
           <div className="absolute -right-2 -top-6 h-56 w-56 rounded-full border border-white/25" />
           <div className="absolute bottom-10 left-10 max-w-xs rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
-            <span className="text-3xl" aria-hidden="true">⌖</span>
-            <p className="mt-3 text-lg font-semibold">Your next chapter starts here</p>
-            <p className="mt-1 text-sm leading-5 text-slate-100">Find a place that feels like home, with clear guidance at every step.</p>
+            <span className="text-3xl" aria-hidden="true">
+              ⌖
+            </span>
+            <p className="mt-3 text-lg font-semibold">
+              Your next chapter starts here
+            </p>
+            <p className="mt-1 text-sm leading-5 text-slate-100">
+              Find a place that feels like home, with clear guidance at every
+              step.
+            </p>
           </div>
         </div>
       </div>

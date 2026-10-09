@@ -7,16 +7,16 @@ export function ContactAgentSection() {
         <div className="absolute -right-20 -top-32 h-96 w-96 rounded-full bg-white/5 blur-3xl" />
         <div className="relative flex flex-col justify-between gap-7 md:flex-row md:items-end">
           <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">
-            Personal help, when you need it
-          </p>
-          <h2 className="mt-4 max-w-xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            Connect with our agents
-          </h2>
-          <p className="mt-4 max-w-lg text-sm leading-6 text-slate-50 sm:text-base">
-            Have a question about a listing or want help planning a viewing?
-            Start a conversation with our team.
-          </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-100">
+              Personal help, when you need it
+            </p>
+            <h2 className="mt-4 max-w-xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+              Connect with our agents
+            </h2>
+            <p className="mt-4 max-w-lg text-sm leading-6 text-slate-50 sm:text-base">
+              Have a question about a listing or want help planning a viewing?
+              Start a conversation with our team.
+            </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-3">
             <Link

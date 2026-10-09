@@ -92,7 +92,7 @@ export function SearchResults({
 
           {totalPages > 1 && (
             <nav
-              className="flex flex-wrap items-center justify-center gap-2 pt-4"
+              className="mt-8 flex flex-wrap items-center justify-center gap-2 border-t border-slate-200 pt-8"
               aria-label="Property result pages"
             >
               <button

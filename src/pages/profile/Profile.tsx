@@ -10,7 +10,6 @@ import {
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 
 export default function Profile() {
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const auth = useAppSelector((state) => state.auth);

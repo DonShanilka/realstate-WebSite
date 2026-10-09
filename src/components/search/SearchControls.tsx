@@ -173,7 +173,12 @@ export function SearchControls({
             {loading ? "Searching…" : "Search"}
           </Button>
           {mode === "filters" && (
-            <Button type="button" variant="secondary" onClick={onClearFilters} className="!px-3 !py-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClearFilters}
+              className="!px-3 !py-2"
+            >
               Clear
             </Button>
           )}

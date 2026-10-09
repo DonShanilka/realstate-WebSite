@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 
 type NavigationLink = {
@@ -7,11 +8,6 @@ type NavigationLink = {
 };
 
 const navigationLinks: NavigationLink[] = [
-  {
-    to: "/",
-    label: "Home",
-    end: true,
-  },
   {
     to: "/search",
     label: "Properties",
@@ -58,10 +54,10 @@ function navLinkClass({
     ${
       isActive
         ? isHome
-          ? "bg-white/20 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]"
+          ? "bg-white/15 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]"
           : "bg-slate-50 text-slate-950"
         : isHome
-          ? "text-white hover:bg-white/10 hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]"
+          ? "text-white hover:bg-white/10 hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]"
           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
     }
   `;
@@ -70,30 +66,39 @@ function navLinkClass({
 export function Navbar() {
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const transparentHome = isHome && !hasScrolled;
+
+  useEffect(() => {
+    const updateScrollState = () => setHasScrolled(window.scrollY > 80);
+    updateScrollState();
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrollState);
+  }, [location.pathname]);
 
   return (
     <header
-      className={
-        isHome
-          ? "absolute inset-x-0 top-0 z-40 border-b border-white/15 bg-transparent text-white"
-          : "sticky top-0 z-40 border-b border-slate-200 bg-white/95 text-slate-900 backdrop-blur"
-      }
+      className={`sticky top-0 z-40 transition-colors duration-200 ${
+        transparentHome
+          ? "-mb-16 bg-transparent text-white"
+          : "border-b border-slate-200 bg-white text-slate-900"
+      }`}
     >
       <div className="w-full px-[50px] sm:px-[100px]">
         <div className="flex min-h-16 items-center gap-3">
           <Link
             to="/"
-            className={`flex shrink-0 items-center gap-2 text-xl font-bold tracking-tight ${isHome ? "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]" : "text-slate-900"}`}
+            className={`flex shrink-0 items-center gap-2 text-xl font-bold tracking-tight ${transparentHome ? "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]" : "text-slate-900"}`}
           >
             <span
-              className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-bold shadow-sm ${isHome ? "border border-white/70 bg-white/10 text-white" : "bg-slate-950 text-white"}`}
+              className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-bold shadow-sm ${transparentHome ? "border border-white/70 bg-white/10 text-white" : "bg-slate-950 text-white"}`}
             >
               E
             </span>
 
             <span>
               Estate
-              <span className={isHome ? "text-white/75" : "text-slate-950"}>
+              <span className={transparentHome ? "text-white/80" : "text-slate-950"}>
                 AI
               </span>
             </span>
@@ -109,7 +114,7 @@ export function Navbar() {
                 end={link.end}
                 aria-label={link.label}
                 title={link.label}
-                className={({ isActive }) => navLinkClass({ isActive, isHome })}
+                className={({ isActive }) => navLinkClass({ isActive, isHome: transparentHome })}
               >
                 {link.to === "/favorites" ? (
                   <svg

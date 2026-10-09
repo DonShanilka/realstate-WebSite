@@ -6,7 +6,6 @@ import { createBooking } from "../../features/bookings/booking.thunks";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 
 export default function BookViewing() {
-
   const [params] = useSearchParams();
   const propertyId = Number(params.get("property_id"));
   const dispatch = useAppDispatch();

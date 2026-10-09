@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const fallbackHeroImage =
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85";
+  "https://images.unsplash.com/photo-1768200498972-fd56353d73fc?auto=format&fit=crop&w=3000&q=90";
 
 export function HomeHero({
   image,
@@ -15,16 +15,12 @@ export function HomeHero({
 }) {
   const [heroImageFailed, setHeroImageFailed] = useState(false);
   return (
-    <section className="relative isolate flex min-h-[560px] items-end overflow-hidden bg-slate-900 text-white sm:min-h-[70vh]">
+    <section className="relative isolate flex min-h-[560px] items-end overflow-hidden bg-slate-900 text-white sm:min-h-[76vh]">
       <img
         src={image && !heroImageFailed ? image : fallbackHeroImage}
-        alt={
-          image
-            ? "Featured home from the latest property listings"
-            : "Modern architectural home"
-        }
+        alt="Modern white home beneath a clear blue sky"
         onError={() => setHeroImageFailed(true)}
-        className="absolute inset-0 -z-20 h-full w-full object-cover"
+        className="absolute inset-0 -z-20 h-full w-full object-cover object-[center_55%]"
       />
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950/60 via-slate-950/20 to-slate-950/5" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-slate-950/35 via-transparent to-slate-950/5" />
@@ -81,10 +77,6 @@ export function HomeHero({
             </div>
           </div>
         </div>
-      </div>
-      <div className="absolute right-5 top-6 hidden text-right text-[10px] font-medium uppercase tracking-[0.22em] text-white/75 sm:block sm:right-8">
-        <span className="block">Homes, considered</span>
-        <span className="mt-1 block">EstateAI · Sri Lanka</span>
       </div>
     </section>
   );
