@@ -1,32 +1,18 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { formatPrice, toNumber } from "../format";
-import { PropertyGrid } from "../components/property/PropertyCard";
-import {
-  Button,
-  Chip,
-  ErrorAlert,
-  Field,
-  PageHeader,
-  SelectField,
-  Spinner,
-  TextArea,
-} from "../components/ui";
-import type { Property, SearchFilters } from "../types";
-import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { PageHeader } from "../components/ui";
+import { SearchControls } from "../components/search/SearchControls";
+import type { SearchFilterValues, SearchMode } from "../components/search/SearchControls";
+import { SearchResults } from "../components/search/SearchResults";
 import { runNaturalSearch, runSearch } from "../features/search/search.thunks";
 import { setSearchError } from "../features/search/search.slice";
+import { fetchProperties } from "../features/properties/property.thunks";
+import type { SearchFilters } from "../types";
+import { toNumber } from "../format";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
 
-type Mode = "natural" | "filters";
-
-interface Outcome {
-  properties: Property[];
-  message: string;
-  parsed?: Record<string, string | number | string[]>;
-}
-
-const emptyFilters = {
+const emptyFilters: SearchFilterValues = {
   keyword: "",
   city: "",
   district: "",
@@ -44,33 +30,42 @@ export default function Search() {
   const [params] = useSearchParams();
   const dispatch = useAppDispatch();
   const search = useAppSelector((state) => state.search);
+  const properties = useAppSelector((state) => state.properties);
   const initialQuery = params.get("q") ?? "";
-  const [mode, setMode] = useState<Mode>("natural");
+  const [mode, setMode] = useState<SearchMode>("natural");
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState(emptyFilters);
-  const outcome: Outcome | null = search.result
-    ? {
-        properties: search.result.data,
-        message:
-          "message" in search.result
-            ? search.result.message
-            : search.result.total
-              ? `Found ${search.result.total} properties.`
-              : "No properties match these filters.",
-        parsed:
-          "parsed_filters" in search.result
-            ? search.result.parsed_filters
-            : undefined,
+
+  const result = search.result;
+  const resultProperties = result?.data;
+  const resultMessage = result
+    ? "message" in result
+      ? result.message
+      : result.total
+        ? `Found ${result.total} properties.`
+        : "No properties match these filters."
+    : undefined;
+  const parsed = result && "parsed_filters" in result ? result.parsed_filters : undefined;
+
+  useEffect(() => {
+    if (initialQuery.trim().length >= 3) void dispatch(runNaturalSearch(initialQuery.trim()));
+  }, [dispatch, initialQuery]);
+
+  useEffect(() => {
+    if (properties.status === "idle") void dispatch(fetchProperties());
+  }, [dispatch, properties.status]);
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    if (mode === "natural") {
+      if (query.trim().length < 3) {
+        dispatch(setSearchError("Please describe what you are looking for (at least 3 characters)."));
+        return;
       }
-    : null;
-  const loading = search.status === "loading";
-  const error = search.error ?? "";
+      void dispatch(runNaturalSearch(query.trim()));
+      return;
+    }
 
-  async function runNatural(text: string) {
-    void dispatch(runNaturalSearch(text));
-  }
-
-  async function runFilters() {
     const payload: SearchFilters = {
       keyword: filters.keyword.trim() || undefined,
       city: filters.city.trim() || undefined,
@@ -87,29 +82,9 @@ export default function Search() {
     void dispatch(runSearch(payload));
   }
 
-  useEffect(() => {
-    if (initialQuery.trim().length >= 3) void runNatural(initialQuery.trim());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialQuery]);
-
-  function submit(event: FormEvent) {
-    event.preventDefault();
-    if (mode === "natural") {
-      if (query.trim().length < 3)
-        return void dispatch(
-          setSearchError(
-            "Please describe what you are looking for (at least 3 characters).",
-          ),
-        );
-      void runNatural(query.trim());
-    } else {
-      void runFilters();
-    }
+  function updateFilter(key: keyof SearchFilterValues, value: string) {
+    setFilters((current) => ({ ...current, [key]: value }));
   }
-
-  const set =
-    (key: keyof typeof emptyFilters) => (e: { target: { value: string } }) =>
-      setFilters((current) => ({ ...current, [key]: e.target.value }));
 
   return (
     <>
@@ -117,178 +92,28 @@ export default function Search() {
         title="Advanced Search"
         subtitle="Describe your ideal property in your own words, or use detailed filters."
       />
-      <div className="w-full px-[50px] py-8 sm:px-[100px]">
-        <div
-          role="tablist"
-          aria-label="Search type"
-          className="mb-5 inline-flex rounded-lg bg-slate-100 p-1"
-        >
-          {(
-            [
-              ["natural", "Describe it"],
-              ["filters", "Filters"],
-            ] as const
-          ).map(([value, label]) => (
-            <button
-              key={value}
-              role="tab"
-              aria-selected={mode === value}
-              onClick={() => setMode(value)}
-              className={`rounded-md px-4 py-2 text-sm font-medium transition ${
-                mode === value
-                  ? "bg-white text-slate-950 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <form
+      <main className="w-full px-[50px] py-8 sm:px-[100px]">
+        <SearchControls
+          mode={mode}
+          onModeChange={setMode}
+          query={query}
+          onQueryChange={setQuery}
+          filters={filters}
+          onFilterChange={updateFilter}
+          onClearFilters={() => setFilters(emptyFilters)}
           onSubmit={submit}
-          className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
-        >
-          {mode === "natural" ? (
-            <div className="space-y-4">
-              <TextArea
-                label="What are you looking for?"
-                rows={3}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="I need a 3 bedroom house in Colombo under 30 million with parking."
-              />
-              <p className="text-xs text-slate-500">
-                We understand location, property type, bedrooms, bathrooms,
-                budget and features like parking or a garden.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Field
-                label="Keyword"
-                value={filters.keyword}
-                onChange={set("keyword")}
-                placeholder="Villa, modern…"
-              />
-              <Field
-                label="City"
-                value={filters.city}
-                onChange={set("city")}
-                placeholder="Colombo"
-              />
-              <Field
-                label="District"
-                value={filters.district}
-                onChange={set("district")}
-                placeholder="Colombo"
-              />
-              <SelectField
-                label="Property type"
-                value={filters.property_type}
-                onChange={set("property_type")}
-              >
-                <option value="">Any</option>
-                <option value="HOUSE">House</option>
-                <option value="APARTMENT">Apartment</option>
-                <option value="VILLA">Villa</option>
-                <option value="LAND">Land</option>
-              </SelectField>
-              <Field
-                label="Min price (Rs.)"
-                type="number"
-                min={0}
-                value={filters.min_price}
-                onChange={set("min_price")}
-              />
-              <Field
-                label="Max price (Rs.)"
-                type="number"
-                min={0}
-                value={filters.max_price}
-                onChange={set("max_price")}
-              />
-              <Field
-                label="Min bedrooms"
-                type="number"
-                min={0}
-                value={filters.bedrooms}
-                onChange={set("bedrooms")}
-              />
-              <Field
-                label="Min bathrooms"
-                type="number"
-                min={0}
-                value={filters.bathrooms}
-                onChange={set("bathrooms")}
-              />
-              <Field
-                label="Min area (sq.ft)"
-                type="number"
-                min={0}
-                value={filters.min_area}
-                onChange={set("min_area")}
-              />
-              <Field
-                label="Max area (sq.ft)"
-                type="number"
-                min={0}
-                value={filters.max_area}
-                onChange={set("max_area")}
-              />
-              <SelectField
-                label="Sort by"
-                value={filters.sort}
-                onChange={set("sort")}
-              >
-                <option value="latest">Newest</option>
-                <option value="price_asc">Price: low to high</option>
-                <option value="price_desc">Price: high to low</option>
-              </SelectField>
-            </div>
-          )}
-          <div className="mt-5 flex gap-3">
-            <Button type="submit" disabled={loading}>
-              {loading ? "Searching…" : "Search"}
-            </Button>
-            {mode === "filters" && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setFilters(emptyFilters)}
-              >
-                Clear
-              </Button>
-            )}
-          </div>
-        </form>
-
-        <div className="mt-8" aria-live="polite">
-          {loading && <Spinner label="Searching properties" />}
-          {error && <ErrorAlert message={error} />}
-          {outcome && !loading && (
-            <div className="space-y-4">
-              <p className="text-slate-700">{outcome.message}</p>
-              {outcome.parsed && Object.keys(outcome.parsed).length > 0 && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm text-slate-500">We understood:</span>
-                  {Object.entries(outcome.parsed).map(([key, value]) => (
-                    <Chip key={key}>
-                      {key.replace("_", " ")}:{" "}
-                      {Array.isArray(value)
-                        ? value.join(", ")
-                        : key.endsWith("price") && typeof value === "number"
-                          ? formatPrice(value)
-                          : String(value)}
-                    </Chip>
-                  ))}
-                </div>
-              )}
-              <PropertyGrid properties={outcome.properties} />
-            </div>
-          )}
-        </div>
-      </div>
+          loading={search.status === "loading"}
+        />
+        <SearchResults
+          properties={resultProperties ?? properties.items}
+          message={resultMessage}
+          parsed={parsed}
+          searching={search.status === "loading"}
+          searchError={search.error ?? ""}
+          loadingInventory={properties.status === "idle" || properties.status === "loading"}
+          inventoryError={properties.error}
+        />
+      </main>
     </>
   );
 }

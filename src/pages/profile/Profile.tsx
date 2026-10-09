@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { ErrorAlert, Spinner } from "../../components/ui";
+import { logout } from "../../features/auth/auth.slice";
 import {
   fetchProfile,
   updateProfile,
@@ -10,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 export default function Profile() {
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const auth = useAppSelector((state) => state.auth);
   const profile = useAppSelector((state) => state.profile);
   const user = profile.user ?? auth.user;
@@ -41,9 +44,23 @@ export default function Profile() {
 
   return (
     <main className="w-full px-[50px] py-10 sm:px-[100px]">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Profile</h1>
-        <p className="mt-2 text-slate-500">Manage your EstateAI account.</p>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Profile</h1>
+          <p className="mt-2 text-slate-500">Manage your EstateAI account.</p>
+        </div>
+        {auth.token && (
+          <button
+            type="button"
+            onClick={() => {
+              dispatch(logout());
+              navigate("/");
+            }}
+            className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:bg-slate-50 hover:text-slate-950"
+          >
+            Sign out
+          </button>
+        )}
       </div>
       {!auth.token && (
         <ErrorAlert message="Sign in to view and update your profile." />
