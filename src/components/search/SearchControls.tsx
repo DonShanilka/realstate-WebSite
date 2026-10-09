@@ -45,11 +45,11 @@ export function SearchControls({
       onFilterChange(key, event.target.value);
 
   return (
-    <div className="sticky top-16 z-30 -mx-[50px] bg-white/95 px-[50px] py-3 backdrop-blur sm:-mx-[100px] sm:px-[100px]">
+    <div className="sticky top-16 z-30 -mx-[50px] bg-white/95 px-[50px] py-1 backdrop-blur sm:-mx-[100px] sm:px-[100px]">
       <div
         role="tablist"
         aria-label="Search type"
-        className="mb-5 inline-flex rounded-lg bg-slate-100 p-1"
+        className="mb-2 inline-flex rounded-lg bg-slate-100 p-1"
       >
         {(
           [
@@ -63,7 +63,7 @@ export function SearchControls({
             role="tab"
             aria-selected={mode === value}
             onClick={() => onModeChange(value)}
-            className={`rounded-md px-4 py-2 text-sm font-medium transition ${mode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${mode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
           >
             {label}
           </button>
@@ -72,24 +72,20 @@ export function SearchControls({
 
       <form
         onSubmit={onSubmit}
-        className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+        className="rounded-xl border border-slate-200 bg-white p-2 sm:p-3"
       >
         {mode === "natural" ? (
-          <div className="space-y-4">
+          <div className="space-y-1 [&_textarea]:!h-10 [&_textarea]:!min-h-0 [&_textarea]:!resize-none [&_textarea]:!py-2">
             <TextArea
               label="What are you looking for?"
-              rows={3}
+              rows={1}
               value={query}
               onChange={(event) => onQueryChange(event.target.value)}
               placeholder="I need a 3 bedroom house in Colombo under 30 million with parking."
             />
-            <p className="text-xs text-slate-500">
-              We understand location, property type, bedrooms, bathrooms, budget
-              and features like parking or a garden.
-            </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 [&_input]:!py-1.5 [&_select]:!py-1.5 [&_label]:!mb-0 [&_label]:!text-xs">
             <Field
               label="Keyword"
               value={filters.keyword}
@@ -172,12 +168,12 @@ export function SearchControls({
             </SelectField>
           </div>
         )}
-        <div className="mt-5 flex gap-3">
-          <Button type="submit" disabled={loading}>
+        <div className="mt-2 flex gap-2">
+          <Button type="submit" disabled={loading} className="!px-3 !py-2">
             {loading ? "Searching…" : "Search"}
           </Button>
           {mode === "filters" && (
-            <Button type="button" variant="secondary" onClick={onClearFilters}>
+            <Button type="button" variant="secondary" onClick={onClearFilters} className="!px-3 !py-2">
               Clear
             </Button>
           )}

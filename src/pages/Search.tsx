@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { PageHeader } from "../components/ui";
 import { SearchControls } from "../components/search/SearchControls";
 import type { SearchFilterValues, SearchMode } from "../components/search/SearchControls";
 import { SearchResults } from "../components/search/SearchResults";
@@ -88,11 +87,7 @@ export default function Search() {
 
   return (
     <>
-      <PageHeader
-        title="Advanced Search"
-        subtitle="Describe your ideal property in your own words, or use detailed filters."
-      />
-      <main className="w-full px-[50px] py-8 sm:px-[100px]">
+      <main className="w-full px-[50px] py-2 sm:px-[100px]">
         <SearchControls
           mode={mode}
           onModeChange={setMode}

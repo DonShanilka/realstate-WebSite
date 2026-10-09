@@ -14,7 +14,7 @@ const navigationLinks: NavigationLink[] = [
   },
   {
     to: "/search",
-    label: "Search",
+    label: "Properties",
   },
   {
     to: "/assistant",
