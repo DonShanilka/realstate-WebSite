@@ -1,51 +1,52 @@
-function Faq({ question, children }: { question: string; children: string }) {
-  return (
-    <details className="group py-5">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-base font-semibold text-slate-900 marker:content-none">
-        {question}
-        <span
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-slate-200 text-lg font-normal text-slate-500 transition group-open:rotate-45 group-open:text-slate-950"
-          aria-hidden="true"
-        >
-          +
-        </span>
-      </summary>
-      <p className="max-w-3xl pt-3 pr-10 text-sm leading-6 text-slate-600">
-        {children}
-      </p>
-    </details>
-  );
-}
+const questions = [
+  {
+    question: "How do I view a property I'm interested in?",
+    answer: "Open the property details and choose Book a Viewing, or contact our team. We'll help arrange a time that works for you and the property owner.",
+  },
+  {
+    question: "Can EstateAI help me find the right property?",
+    answer: "Yes. Search by location, price, and property features, or describe what you're looking for to get started.",
+  },
+  {
+    question: "How do I compare properties?",
+    answer: "Review each listing's location, price, size, and features. You can also save properties to your Favorites for easy reference.",
+  },
+  {
+    question: "How can I contact an agent?",
+    answer: "Use the Contact an Agent section or send us a message. Our team can answer questions and guide you through the next steps.",
+  },
+];
 
 export function FAQSection() {
   return (
-    <section className="w-full px-[50px] py-14 sm:px-[100px] sm:py-20">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-7 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-950">
-            Good to know
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-            Frequently asked questions
+    <section className="w-full bg-white px-6 py-16 sm:px-12 sm:py-20 lg:px-[100px] lg:py-24">
+      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <div className="lg:pt-1">
+          <p className="text-sm uppercase tracking-wide text-slate-900">All question</p>
+          <h2 className="mt-4 max-w-lg text-4xl font-medium leading-[1.08] tracking-tight text-slate-950 sm:text-5xl">
+            Frequently Asked Question
           </h2>
+          <p className="mt-5 max-w-md text-base leading-7 text-slate-600">
+            Here are some common questions along with their answers to help clear up any confusion.
+          </p>
         </div>
-        <div className="divide-y divide-slate-200 border-y border-slate-200">
-          <Faq question="How do I find a property that fits my needs?">
-            Use Search to describe what you’re looking for in plain language, or
-            choose filters for location, price, rooms, and area.
-          </Faq>
-          <Faq question="Can EstateAI help me compare properties?">
-            Yes. Ask the EstateAI assistant about listings and what to consider
-            when comparing their details.
-          </Faq>
-          <Faq question="How accurate is the price estimate?">
-            Price predictions are estimates based on available property data.
-            Use them as a guide, not as a valuation or offer.
-          </Faq>
-          <Faq question="How do I ask about a viewing?">
-            Open Book a Viewing from the navigation or use Contact an Agent to
-            start a conversation about a listing.
-          </Faq>
+
+        <div className="space-y-3">
+          {questions.map(({ question, answer }, index) => (
+            <details
+              key={question}
+              open={index === 0}
+              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white open:border-slate-950 open:bg-[#101010]"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-5 py-5 text-lg font-medium tracking-tight text-slate-950 marker:content-none group-open:text-white sm:px-6 sm:py-6 sm:text-xl">
+                {question}
+                <span className="shrink-0 text-2xl font-normal leading-none transition-transform group-open:rotate-180" aria-hidden="true">⌄</span>
+              </summary>
+              <p className="max-w-3xl px-5 pb-6 text-sm leading-6 text-slate-300 sm:px-6 sm:text-base sm:leading-7">
+                {answer}
+              </p>
+            </details>
+          ))}
         </div>
       </div>
     </section>
