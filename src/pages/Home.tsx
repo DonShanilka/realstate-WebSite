@@ -7,6 +7,7 @@ import { DreamHomeSection } from "../components/home/DreamHomeSection";
 import { FAQSection } from "../components/home/FAQSection";
 import { HomeHero } from "../components/home/HomeHero";
 import { LatestProjectsSection } from "../components/home/LatestProjectsSection";
+import { OurAgentsSection } from "../components/home/OurAgentsSection";
 import { PropertiesSection } from "../components/home/PropertiesSection";
 import { TestimonialsSection } from "../components/home/TestimonialsSection";
 import { fetchProperties } from "../features/properties/property.thunks";
@@ -57,6 +58,7 @@ export default function Home() {
         error={error}
       />
       <LatestProjectsSection projects={latestProjects} loading={loading} />
+      <OurAgentsSection />
       <ContactAgentSection />
       <TestimonialsSection />
       <FAQSection />

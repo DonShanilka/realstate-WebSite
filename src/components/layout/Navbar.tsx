@@ -1,5 +1,5 @@
 import { NavLink, Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../../features/auth/auth.slice";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 
@@ -49,13 +49,23 @@ const navigationLinks: NavigationLink[] = [
   },
 ];
 
-function navLinkClass({ isActive }: { isActive: boolean }) {
+function navLinkClass({
+  isActive,
+  isHome,
+}: {
+  isActive: boolean;
+  isHome: boolean;
+}) {
   return `
-    shrink-0 whitespace-nowrap rounded-lg px-2 py-2 text-xs font-medium transition sm:px-3 sm:text-sm
+    shrink-0 whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-semibold transition sm:px-3 sm:text-[15px]
     ${
       isActive
-        ? "bg-slate-50 text-slate-950"
-        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        ? isHome
+          ? "bg-white/20 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]"
+          : "bg-slate-50 text-slate-950"
+        : isHome
+          ? "text-white hover:bg-white/10 hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]"
+          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
     }
   `;
 }
@@ -63,22 +73,35 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 export function Navbar() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
   const { token, user } = useAppSelector((state) => state.auth);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header
+      className={
+        isHome
+          ? "absolute inset-x-0 top-0 z-40 border-b border-white/15 bg-transparent text-white"
+          : "sticky top-0 z-40 border-b border-slate-200 bg-white/95 text-slate-900 backdrop-blur"
+      }
+    >
       <div className="w-full px-[50px] sm:px-[100px]">
         <div className="flex min-h-16 items-center gap-3">
           <Link
             to="/"
-            className="flex shrink-0 items-center gap-2 text-lg font-bold text-slate-900"
+            className={`flex shrink-0 items-center gap-2 text-xl font-bold tracking-tight ${isHome ? "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]" : "text-slate-900"}`}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-slate-950 text-sm font-bold text-white shadow-sm">
+            <span
+              className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-bold shadow-sm ${isHome ? "border border-white/70 bg-white/10 text-white" : "bg-slate-950 text-white"}`}
+            >
               E
             </span>
 
             <span>
-              Estate<span className="text-slate-950">AI</span>
+              Estate
+              <span className={isHome ? "text-white/75" : "text-slate-950"}>
+                AI
+              </span>
             </span>
           </Link>
           <nav
@@ -90,7 +113,7 @@ export function Navbar() {
                 key={link.to}
                 to={link.to}
                 end={link.end}
-                className={navLinkClass}
+                className={({ isActive }) => navLinkClass({ isActive, isHome })}
               >
                 {link.label}
               </NavLink>
@@ -102,7 +125,7 @@ export function Navbar() {
                 dispatch(logout());
                 navigate("/");
               }}
-              className="shrink-0 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 sm:text-sm"
+              className={`shrink-0 rounded-lg border px-3 py-2 text-sm font-semibold sm:px-4 ${isHome ? "border-white/60 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)] hover:bg-white/10" : "border-slate-300 text-slate-700 hover:bg-slate-50"}`}
               title={
                 user?.full_name ? `Signed in as ${user.full_name}` : "Sign out"
               }
@@ -112,7 +135,7 @@ export function Navbar() {
           ) : (
             <Link
               to="/login"
-              className="shrink-0 rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white sm:text-sm"
+              className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold sm:px-4 ${isHome ? "border border-white/60 bg-white/10 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)] hover:bg-white/15" : "bg-slate-950 text-white"}`}
             >
               Sign in
             </Link>
