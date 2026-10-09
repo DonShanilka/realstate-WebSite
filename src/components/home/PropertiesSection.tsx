@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import type { Property } from "../../types";
 import { PropertyGrid } from "../property/PropertyCard";
 import { ErrorAlert, Spinner } from "../ui";
@@ -49,9 +48,9 @@ export function PropertiesSection({
               {type.label}
             </button>
           ))}
-          <Link to="/search" className="ml-auto inline-flex items-center px-2 py-2 text-sm font-semibold text-slate-950 hover:underline">
+          {/* <Link to="/search" className="ml-auto inline-flex items-center px-2 py-2 text-sm font-semibold text-slate-950 hover:underline">
             Browse all properties <span className="ml-1" aria-hidden="true">↗</span>
-          </Link>
+          </Link> */}
         </div>
 
         {loading && <Spinner label="Loading properties" />}

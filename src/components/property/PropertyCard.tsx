@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { formatPrice, formatType, location } from "../../utils/format";
 import type { Property } from "../../types";
-import { Chip } from "../ui";
+import propertyPlaceholder from "../../assets/property-placeholder.svg";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import {
   addFavorite,
@@ -33,9 +33,6 @@ export function PropertyCard({ property }: PropertyCardProps) {
   }, [dispatch, favoriteStatus, token]);
 
   const place = location([property.city, property.district]);
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80";
-
   return (
     <article
       onClick={() =>
@@ -50,30 +47,16 @@ export function PropertyCard({ property }: PropertyCardProps) {
       }}
       role="link"
       tabIndex={0}
-      className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200/80 bg-white transition duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-900/10 focus:outline-none focus:ring-2 focus:ring-slate-950"
+      className="group flex h-full cursor-pointer flex-col rounded-3xl bg-white transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-950"
     >
-      {/* Image */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
+      <div className="relative aspect-[1.46] w-full overflow-hidden rounded-3xl bg-slate-100">
         <img
-          src={
-            property.image_url && !imageFailed
-              ? property.image_url
-              : fallbackImage
-          }
+          src={property.image_url && !imageFailed ? property.image_url : propertyPlaceholder}
           alt={property.title}
           loading="lazy"
           onError={() => setImageFailed(true)}
-          className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-slate-950/10" />
-        <div className="absolute left-4 top-4">
-          <Chip>{formatType(property.property_type)}</Chip>
-        </div>
-        {property.status && (
-          <span className="absolute bottom-4 left-4 rounded-full border border-white/30 bg-slate-950/25 px-3 py-1 text-xs font-medium capitalize text-white backdrop-blur-sm">
-            {property.status.toLowerCase()}
-          </span>
-        )}
         <button
           type="button"
           title={
@@ -96,53 +79,32 @@ export function PropertyCard({ property }: PropertyCardProps) {
             if (isFavorite) void dispatch(removeFavorite(property.id));
             else void dispatch(addFavorite(property.id));
           }}
-          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-xl text-slate-900 shadow transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-xl text-slate-900 shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isFavorite ? "♥" : "♡"}
         </button>
       </div>
 
-      {/* Content */}
-      <div className="space-y-3 p-5">
-        {/* Title + Type */}
-        <h3 className="line-clamp-1 text-lg font-semibold tracking-tight text-slate-900">
+      <div className="flex flex-1 flex-col pt-4">
+        <h3 className="line-clamp-1 text-xl font-medium tracking-tight text-slate-950 sm:text-2xl">
           {property.title}
         </h3>
-
-        {/* Location */}
-        {place && (
-          <p className="-mt-1 text-sm text-slate-500">
-            ⌖ <span className="ml-1">{place}</span>
-          </p>
-        )}
-
-        {/* Price */}
-        <p className="text-xl font-bold tracking-tight text-slate-900">
+        <div className="mt-3 flex min-h-[68px] flex-wrap content-start gap-2">
+          {[formatType(property.property_type), property.bedrooms ? `${property.bedrooms} bedrooms` : null, property.area_size ? `${property.area_size.toLocaleString()} sq.ft` : null, place, property.status ? property.status.toLowerCase() : null]
+            .filter((tag): tag is string => Boolean(tag))
+            .map((tag) => (
+              <span key={tag} className="h-fit rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 sm:text-sm">
+                {tag}
+              </span>
+            ))}
+        </div>
+        <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
           {formatPrice(property.price)}
         </p>
-
-        {/* Features */}
-        <dl className="flex flex-wrap gap-x-4 gap-y-2 border-t border-slate-100 pt-3 text-sm text-slate-500">
-          <div>
-            <dt className="sr-only">Bedrooms</dt>
-            <dd>{property.bedrooms ?? "–"} bed</dd>
-          </div>
-
-          <div>
-            <dt className="sr-only">Bathrooms</dt>
-            <dd>{property.bathrooms ?? "–"} bath</dd>
-          </div>
-
-          {property.area_size != null && (
-            <div>
-              <dt className="sr-only">Area</dt>
-              <dd>{property.area_size.toLocaleString()} sq.ft</dd>
-            </div>
-          )}
-        </dl>
-
-        {/* Actions */}
-        <div className="flex items-center justify-between gap-3 pt-1">
+        <p className="mt-2 min-h-12 line-clamp-2 text-sm leading-6 text-slate-600">
+          {property.description || `Explore ${property.title}${place ? ` in ${place}` : ""} and view the full property details.`}
+        </p>
+        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           <Link
             to={`/assistant?ask=${encodeURIComponent(
               `Tell me about ${property.title} in ${
