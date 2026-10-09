@@ -33,8 +33,8 @@ export function OurAgentsSection() {
     <section className="w-full bg-white px-[50px] py-16 sm:px-[100px] sm:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-16">
-          <p className="text-sm font-medium uppercase tracking-[0.16em] text-slate-600">Our Agents</p>
-          <h2 className="mt-4 text-4xl font-medium tracking-tight text-slate-950 sm:text-5xl">Contact with Our Agents</h2>
+          <p className="text-xl uppercase text-slate-950">Our Agents</p>
+          <h2 className="mt-4 text-5xl font-medium tracking-tight text-slate-950 sm:text-6xl">Contact with Our Agents</h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-600">Get personal guidance from our property team and find the right next step for your home search.</p>
         </div>
 
