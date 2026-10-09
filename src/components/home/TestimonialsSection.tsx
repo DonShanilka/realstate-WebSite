@@ -31,8 +31,8 @@ export function TestimonialsSection() {
   };
 
   return (
-    <section className="w-full overflow-hidden bg-white px-6 py-16 sm:px-12 sm:py-20 lg:px-[100px] lg:py-24">
-      <div className="mx-auto max-w-7xl">
+    <section className="w-full overflow-hidden bg-white px-[50px] py-16 sm:px-[100px] sm:py-20 lg:py-24">
+      <div>
         <div className="mb-10 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm uppercase tracking-wide text-slate-900">Testimonials</p>

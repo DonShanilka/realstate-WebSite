@@ -31,7 +31,7 @@ const agents = [
 export function OurAgentsSection() {
   return (
     <section className="w-full bg-white px-[50px] py-16 sm:px-[100px] sm:py-24">
-      <div className="mx-auto max-w-7xl">
+      <div>
         <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-16">
           <p className="text-xl uppercase text-slate-950">Our Agents</p>
           <h2 className="mt-4 text-5xl font-medium tracking-tight text-slate-950 sm:text-6xl">Contact with Our Agents</h2>

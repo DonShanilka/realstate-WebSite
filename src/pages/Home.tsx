@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { ContactAgentSection } from "../components/home/ContactAgentSection";
 import { DiscoverSection } from "../components/home/DiscoverSection";
 import { DreamHomeSection } from "../components/home/DreamHomeSection";
 import { FAQSection } from "../components/home/FAQSection";

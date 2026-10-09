@@ -19,8 +19,8 @@ const questions = [
 
 export function FAQSection() {
   return (
-    <section className="w-full bg-white px-6 py-16 sm:px-12 sm:py-20 lg:px-[100px] lg:py-24">
-      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+    <section className="w-full bg-white px-[50px] py-16 sm:px-[100px] sm:py-20 lg:py-24">
+      <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div className="lg:pt-1">
           <p className="text-sm uppercase tracking-wide text-slate-900">All question</p>
           <h2 className="mt-4 max-w-lg text-4xl font-medium leading-[1.08] tracking-tight text-slate-950 sm:text-5xl">
