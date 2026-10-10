@@ -16,7 +16,9 @@ const post = <T>(path: string, body: unknown) =>
 
 export const api = {
   async listProperties(): Promise<Property[]> {
-    const result = await request<{ data: Property[] }>("/properties/getAllProperty");
+    const result = await request<{ data: Property[] }>(
+      "/properties/getAllProperty",
+    );
     return result.data;
   },
 
@@ -28,8 +30,11 @@ export const api = {
     return request<SearchResult>(`/search/?${params}`);
   },
 
-  naturalSearch: (query: string) => post<NaturalSearchResult>("/search/natural", { query }),
-  askAssistant: (question: string) => post<AssistantResponse>("/assistant/property", { question }),
-  predictPrice: (payload: PricePredictionRequest) => post<PricePrediction>("/price-prediction/predict", payload),
+  naturalSearch: (query: string) =>
+    post<NaturalSearchResult>("/search/natural", { query }),
+  askAssistant: (question: string) =>
+    post<AssistantResponse>("/assistant/property", { question }),
+  predictPrice: (payload: PricePredictionRequest) =>
+    post<PricePrediction>("/price-prediction/predict", payload),
   priceModelStatus: () => request<PriceModelStatus>("/price-prediction/status"),
 };
