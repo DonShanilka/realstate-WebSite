@@ -14,6 +14,7 @@ export interface Property {
   country: string | null;
   image_url: string | null;
   video_url?: string | null;
+  owner_id?: number | null;
 }
 
 export interface SearchFilters {

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { clearAuthError } from "../../features/auth/auth.slice";
 import { login } from "../../features/auth/auth.thunks";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { readTokenUser } from "../../utils/storage";
 import { Button, ErrorAlert, Field } from "../ui";
 import { AuthModalFrame } from "./AuthModalFrame";
 import { GoogleSignInButton } from "./GoogleSignInButton";
@@ -23,8 +24,13 @@ export function LoginModal() {
     event.preventDefault();
     dispatch(clearAuthError());
     try {
-      await dispatch(login({ email: email.trim(), password })).unwrap();
-      navigate(returnTo || "/profile", { replace: true });
+      const session = await dispatch(
+        login({ email: email.trim(), password }),
+      ).unwrap();
+      const role = session.user?.role ?? readTokenUser(session.access_token).role;
+      navigate(role === "AGENT" ? "/agent" : returnTo || "/profile", {
+        replace: true,
+      });
     } catch {
       // Redux auth state displays the rejected request message.
     }

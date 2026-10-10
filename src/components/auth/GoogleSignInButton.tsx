@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { googleLogin } from "../../features/auth/auth.thunks";
 import { useAppDispatch } from "../../hooks/redux";
+import { readTokenUser } from "../../utils/storage";
 import { ErrorAlert } from "../ui";
 
 type GoogleCredentialResponse = { credential: string };
@@ -45,8 +46,11 @@ export function GoogleSignInButton({
     activeGoogleCredentialHandler = async (credential) => {
       setGoogleError(null);
       try {
-        await dispatch(googleLogin(credential)).unwrap();
-        navigate(returnTo || "/profile", { replace: true });
+        const session = await dispatch(googleLogin(credential)).unwrap();
+        const role = session.user?.role ?? readTokenUser(session.access_token).role;
+        navigate(role === "AGENT" ? "/agent" : returnTo || "/profile", {
+          replace: true,
+        });
       } catch {
         // The rejected action keeps its error in Redux auth state.
       }

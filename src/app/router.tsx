@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import MainLayout from "../components/layout/MainLayout";
+import AgentWorkspaceLayout from "../components/layout/AgentWorkspaceLayout";
 
 import Home from "../pages/Home";
 import Search from "../pages/Search";
@@ -15,8 +16,22 @@ import Messages from "../pages/messages/Messages";
 import Profile from "../pages/profile/Profile";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
+import AgentDashboard from "../pages/agent/AgentDashboard";
+import AgentProperties from "../pages/agent/AgentProperties";
+import AgentViewings from "../pages/agent/AgentViewings";
 
 export const router = createBrowserRouter([
+  {
+    path: "/agent",
+    element: <AgentWorkspaceLayout />,
+    children: [
+      { index: true, element: <AgentDashboard /> },
+      { path: "properties", element: <AgentProperties /> },
+      { path: "viewings", element: <AgentViewings /> },
+      { path: "messages", element: <Messages /> },
+      { path: "profile", element: <Profile /> },
+    ],
+  },
   {
     path: "/",
     element: <MainLayout />,
