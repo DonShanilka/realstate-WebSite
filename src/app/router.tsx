@@ -19,6 +19,7 @@ import Register from "../pages/auth/Register";
 import AgentDashboard from "../pages/agent/AgentDashboard";
 import AgentProperties from "../pages/agent/AgentProperties";
 import AgentViewings from "../pages/agent/AgentViewings";
+import AgentMessages from "../pages/agent/AgentMessages";
 
 export const router = createBrowserRouter([
   {
@@ -28,7 +29,7 @@ export const router = createBrowserRouter([
       { index: true, element: <AgentDashboard /> },
       { path: "properties", element: <AgentProperties /> },
       { path: "viewings", element: <AgentViewings /> },
-      { path: "messages", element: <Messages /> },
+      { path: "messages", element: <AgentMessages /> },
       { path: "profile", element: <Profile /> },
     ],
   },

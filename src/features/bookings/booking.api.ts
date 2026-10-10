@@ -3,6 +3,7 @@ import type { Booking } from "./booking.types";
 
 export const bookingApi = {
   mine: () => request<Booking[]>("/bookings/my"),
+  forAgent: () => request<Booking[]>("/bookings/agent"),
   create: (id: number, dates: { check_in: string; check_out: string }) =>
     request<Booking>(`/bookings/${id}`, { method: "POST", ...jsonBody(dates) }),
   updateStatus: (id: number, status: string) =>

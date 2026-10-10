@@ -26,3 +26,20 @@ export const fetchProperty = createAsyncThunk<Property, number, ThunkConfig>(
     }
   },
 );
+
+export const fetchAssignedProperties = createAsyncThunk<Property[], void, ThunkConfig>(
+  "properties/fetchAssigned",
+  async (_, { rejectWithValue }) => {
+    try { return await propertyApi.assignedToMe(); }
+    catch (e) { return rejectWithValue((e as Error).message); }
+  },
+);
+
+export const assignPropertyAgent = createAsyncThunk<
+  Property,
+  { propertyId: number; agentId: number | null },
+  ThunkConfig
+>("properties/assignAgent", async (assignment, { rejectWithValue }) => {
+  try { return await propertyApi.assignAgent(assignment.propertyId, assignment.agentId); }
+  catch (e) { return rejectWithValue((e as Error).message); }
+});

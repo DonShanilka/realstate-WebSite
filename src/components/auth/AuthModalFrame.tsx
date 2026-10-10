@@ -11,7 +11,6 @@ export function AuthModalFrame({
   mode: AuthModalMode;
   children: ReactNode;
 }) {
-
   const navigate = useNavigate();
   const location = useLocation();
   const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;

@@ -1,10 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { ErrorAlert, Spinner } from "../components/ui";
 import { formatPrice, formatType, location } from "../utils/format";
 import type { Property } from "../types";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { fetchProperty } from "../features/properties/property.thunks";
+import {
+  assignPropertyAgent,
+  fetchProperty,
+} from "../features/properties/property.thunks";
+import {
+  propertyApi,
+  type PropertyAgent,
+} from "../features/properties/property.api";
 
 export default function PropertyDetails() {
   const { id } = useParams();
@@ -15,6 +22,7 @@ export default function PropertyDetails() {
   const { selected, status, error } = useAppSelector(
     (state) => state.properties,
   );
+  const auth = useAppSelector((state) => state.auth);
   const requestedId = Number(id);
   const property =
     initialProperty?.id === requestedId
@@ -22,6 +30,22 @@ export default function PropertyDetails() {
       : selected?.id === requestedId
         ? selected
         : null;
+  const [agents, setAgents] = useState<PropertyAgent[]>([]);
+  const [agentId, setAgentId] = useState<number | null>(
+    property?.agent_id ?? null,
+  );
+  const [assignmentBusy, setAssignmentBusy] = useState(false);
+  const [assignmentError, setAssignmentError] = useState("");
+  const [assignmentSaved, setAssignmentSaved] = useState(false);
+  const assignedAgentId = assignmentSaved
+    ? agentId
+    : (property?.agent_id ?? null);
+  const canManageAssignment = Boolean(
+    property &&
+    auth.token &&
+    (auth.user?.role === "ADMIN" ||
+      (auth.user?.role === "OWNER" && auth.user.id === property.owner_id)),
+  );
   const loading = !property && status !== "failed";
 
   useEffect(() => {
@@ -33,6 +57,41 @@ export default function PropertyDetails() {
       return;
     void dispatch(fetchProperty(requestedId));
   }, [dispatch, requestedId, initialProperty, selected?.id]);
+
+  useEffect(() => {
+    setAgentId(property?.agent_id ?? null);
+  }, [property?.id, property?.agent_id]);
+
+  useEffect(() => {
+    if (!canManageAssignment && !property?.agent_id) return;
+    let active = true;
+    void propertyApi
+      .agents()
+      .then((data) => {
+        if (active) setAgents(data);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [canManageAssignment, property?.agent_id]);
+
+  async function saveAgentAssignment() {
+    if (!property) return;
+    setAssignmentBusy(true);
+    setAssignmentError("");
+    setAssignmentSaved(false);
+    try {
+      await dispatch(
+        assignPropertyAgent({ propertyId: property.id, agentId }),
+      ).unwrap();
+      setAssignmentSaved(true);
+    } catch (cause) {
+      setAssignmentError((cause as Error).message);
+    } finally {
+      setAssignmentBusy(false);
+    }
+  }
 
   if (loading)
     return (
@@ -209,7 +268,82 @@ export default function PropertyDetails() {
             >
               Book a viewing
             </Link>
+            {assignedAgentId ? (
+              <Link
+                to={
+                  auth.token
+                    ? `/messages?property_id=${property.id}&agent_id=${assignedAgentId}`
+                    : "/login"
+                }
+                state={
+                  auth.token
+                    ? undefined
+                    : {
+                        returnTo: `/messages?property_id=${property.id}&agent_id=${assignedAgentId}`,
+                      }
+                }
+                className="mt-2 flex w-full items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+              >
+                Message the property agent
+              </Link>
+            ) : (
+              <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2.5 text-xs leading-5 text-slate-600">
+                This property has no agent assigned yet. The owner needs to
+                assign an agent before buyers can send a viewing request or
+                message.
+              </p>
+            )}
           </section>
+
+          {canManageAssignment && (
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                Property contact
+              </p>
+              <h2 className="mt-2 text-base font-bold text-slate-900">
+                Assign an agent
+              </h2>
+              <p className="mt-1 text-sm leading-5 text-slate-500">
+                Viewing requests and property messages will be routed to the
+                selected agent.
+              </p>
+              <select
+                value={agentId ?? ""}
+                onChange={(event) => {
+                  setAgentId(
+                    event.target.value ? Number(event.target.value) : null,
+                  );
+                  setAssignmentSaved(false);
+                }}
+                className="mt-4 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900"
+              >
+                <option value="">No agent assigned</option>
+                {agents.map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.full_name} · {agent.email}
+                  </option>
+                ))}
+              </select>
+              {assignmentError && (
+                <p role="alert" className="mt-2 text-sm text-red-700">
+                  {assignmentError}
+                </p>
+              )}
+              {assignmentSaved && (
+                <p role="status" className="mt-2 text-sm text-emerald-700">
+                  Agent assignment saved.
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={() => void saveAgentAssignment()}
+                disabled={assignmentBusy || !agents.length}
+                className="mt-3 w-full rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {assignmentBusy ? "Saving…" : "Save assignment"}
+              </button>
+            </section>
+          )}
 
           <section className="rounded-2xl border border-slate-200 bg-white p-4">
             <h2 className="mb-3 text-sm font-bold text-slate-900">

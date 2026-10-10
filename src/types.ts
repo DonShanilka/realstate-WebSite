@@ -15,6 +15,7 @@ export interface Property {
   image_url: string | null;
   video_url?: string | null;
   owner_id?: number | null;
+  agent_id?: number | null;
 }
 
 export interface SearchFilters {

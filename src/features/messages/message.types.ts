@@ -9,7 +9,7 @@ export interface Message {
 }
 
 export interface MessagesState {
-  conversations: Record<number, Message[]>;
+  conversations: Record<string, Message[]>;
   inbox: Message[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;

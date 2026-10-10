@@ -15,6 +15,17 @@ export const fetchBookings = createAsyncThunk<Booking[], void, Config>(
   },
 );
 
+export const fetchAgentBookings = createAsyncThunk<Booking[], void, Config>(
+  "bookings/agentList",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await bookingApi.forAgent();
+    } catch (e) {
+      return rejectWithValue((e as Error).message);
+    }
+  },
+);
+
 export const createBooking = createAsyncThunk<
   Booking,
   { propertyId: number; check_in: string; check_out: string },

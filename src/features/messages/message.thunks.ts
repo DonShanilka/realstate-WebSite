@@ -16,11 +16,32 @@ export const fetchConversation = createAsyncThunk<
   }
 });
 
+export const fetchPropertyConversation = createAsyncThunk<
+  { key: string; messages: Message[] },
+  { propertyId: number; userId: number },
+  Config
+>(
+  "messages/propertyConversation",
+  async ({ propertyId, userId }, { rejectWithValue }) => {
+    try {
+      return {
+        key: `${propertyId}:${userId}`,
+        messages: await messageApi.propertyConversation(propertyId, userId),
+      };
+    } catch (e) {
+      return rejectWithValue((e as Error).message);
+    }
+  },
+);
+
 export const fetchMyMessages = createAsyncThunk<Message[], void, Config>(
   "messages/inbox",
   async (_, { rejectWithValue }) => {
-    try { return await messageApi.mine(); }
-    catch (e) { return rejectWithValue((e as Error).message); }
+    try {
+      return await messageApi.mine();
+    } catch (e) {
+      return rejectWithValue((e as Error).message);
+    }
   },
 );
 

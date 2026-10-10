@@ -4,41 +4,70 @@ import { ErrorAlert, Spinner } from "../../components/ui";
 import {
   fetchConversation,
   fetchMyMessages,
+  fetchPropertyConversation,
   sendMessage,
 } from "../../features/messages/message.thunks";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { useSearchParams } from "react-router-dom";
+import { messageApi } from "../../features/messages/message.api";
 export default function Messages() {
+  const [params] = useSearchParams();
+  const propertyId = Number(params.get("property_id")) || null;
+  const assignedAgentId = Number(params.get("agent_id")) || null;
   const dispatch = useAppDispatch();
   const { token, user } = useAppSelector((state) => state.auth);
   const messages = useAppSelector((state) => state.messages);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
   const [draft, setDraft] = useState("");
 
   useEffect(() => {
     if (token && messages.status === "idle") void dispatch(fetchMyMessages());
   }, [dispatch, messages.status, token]);
 
-  const contacts = useMemo(
-    () => [
-      ...new Set(
-        messages.inbox.map((item) =>
-          item.sender_id === user?.id ? item.receiver_id : item.sender_id,
-        ),
-      ),
-    ],
-    [messages.inbox, user?.id],
-  );
+  useEffect(() => {
+    if (propertyId && assignedAgentId) {
+      setSelectedId(assignedAgentId);
+      setSelectedPropertyId(propertyId);
+    }
+  }, [assignedAgentId, propertyId]);
+
+  const contacts = useMemo(() => {
+    const byProperty = new Map<string, { userId: number; propertyId: number | null }>();
+    for (const item of messages.inbox) {
+      const contactId = item.sender_id === user?.id ? item.receiver_id : item.sender_id;
+      const propertyKey = item.property_id ?? null;
+      const key = `${contactId}:${propertyKey ?? "general"}`;
+      byProperty.set(key, { userId: contactId, propertyId: propertyKey });
+    }
+    return [...byProperty.values()];
+  }, [messages.inbox, user?.id]);
+
+  const conversationPropertyId = propertyId ?? selectedPropertyId;
 
   useEffect(() => {
-    if (selectedId && messages.conversations[selectedId] === undefined)
+    if (!selectedId) return;
+    if (conversationPropertyId) {
+      const key = `${conversationPropertyId}:${selectedId}`;
+      if (messages.conversations[key] === undefined)
+        void dispatch(fetchPropertyConversation({ propertyId: conversationPropertyId, userId: selectedId }));
+    } else if (messages.conversations[String(selectedId)] === undefined) {
       void dispatch(fetchConversation(selectedId));
-  }, [dispatch, messages.conversations, selectedId]);
+    }
+  }, [conversationPropertyId, dispatch, messages.conversations, selectedId]);
+
+  useEffect(() => {
+    if (!token || !selectedId || !conversationPropertyId) return;
+    void messageApi.markPropertyConversationRead(conversationPropertyId, selectedId)
+      .then(() => dispatch(fetchMyMessages()))
+      .catch(() => undefined);
+  }, [conversationPropertyId, dispatch, selectedId, token]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
     if (!selectedId || !draft.trim()) return;
     void dispatch(
-      sendMessage({ receiver_id: selectedId, message: draft.trim() }),
+      sendMessage({ receiver_id: selectedId, property_id: conversationPropertyId ?? undefined, message: draft.trim() }),
     )
       .unwrap()
       .then(() => setDraft(""))
@@ -46,7 +75,7 @@ export default function Messages() {
   }
 
   const activeMessages = selectedId
-    ? (messages.conversations[selectedId] ?? [])
+    ? (messages.conversations[conversationPropertyId ? `${conversationPropertyId}:${selectedId}` : String(selectedId)] ?? [])
     : [];
 
   return (
@@ -55,7 +84,7 @@ export default function Messages() {
         <h1 className="text-3xl font-bold text-slate-900">Messages</h1>
 
         <p className="mt-2 text-slate-500">
-          Chat directly with property sellers.
+          {conversationPropertyId ? `Discuss property #${conversationPropertyId} directly with its assigned agent.` : "Chat directly with property contacts."}
         </p>
       </div>
 
@@ -82,13 +111,14 @@ export default function Messages() {
               No conversations yet.
             </div>
           )}
-          {contacts.map((contactId) => (
+          {contacts.map((contact) => (
             <button
-              key={contactId}
-              onClick={() => setSelectedId(contactId)}
-              className={`block w-full border-b border-slate-100 p-4 text-left text-sm hover:bg-slate-50 ${selectedId === contactId ? "bg-slate-100" : ""}`}
+              key={`${contact.userId}:${contact.propertyId ?? "general"}`}
+              onClick={() => { setSelectedId(contact.userId); setSelectedPropertyId(contact.propertyId); }}
+              className={`block w-full border-b border-slate-100 p-4 text-left text-sm hover:bg-slate-50 ${selectedId === contact.userId && conversationPropertyId === contact.propertyId ? "bg-slate-100" : ""}`}
             >
-              Conversation with user #{contactId}
+              <span className="block font-medium">Conversation with user #{contact.userId}</span>
+              {contact.propertyId && <span className="mt-1 block text-xs text-slate-500">Property #{contact.propertyId}</span>}
             </button>
           ))}
         </aside>
@@ -98,7 +128,8 @@ export default function Messages() {
           {selectedId ? (
             <>
               <div className="border-b border-slate-200 p-4 font-semibold">
-                User #{selectedId}
+                {assignedAgentId === selectedId ? "Property agent" : `User #${selectedId}`}
+                {conversationPropertyId && <p className="mt-1 text-xs font-normal text-slate-500">Property #{conversationPropertyId}</p>}
               </div>
               <div className="flex-1 space-y-3 overflow-y-auto p-4">
                 {activeMessages.map((message) => (
