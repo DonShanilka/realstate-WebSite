@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { tokenStorage, readTokenUser } from "../../utils/storage";
-import { login, register } from "./auth.thunks";
+import { googleLogin, login, register } from "./auth.thunks";
 import type { User } from "./auth.types";
 
 const token = tokenStorage.get();
@@ -52,6 +52,20 @@ const slice = createSlice({
       .addCase(login.rejected, (s, a) => {
         s.status = "failed";
         s.error = a.payload ?? a.error.message ?? "Login failed";
+      });
+    builder
+      .addCase(googleLogin.pending, (s) => {
+        s.status = "loading";
+        s.error = null;
+      })
+      .addCase(googleLogin.fulfilled, (s, a) => {
+        s.status = "succeeded";
+        s.token = a.payload.access_token;
+        s.user = a.payload.user;
+      })
+      .addCase(googleLogin.rejected, (s, a) => {
+        s.status = "failed";
+        s.error = a.payload ?? a.error.message ?? "Google sign-in failed";
       });
     builder
       .addCase(register.pending, (s) => {

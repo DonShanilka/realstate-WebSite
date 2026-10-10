@@ -25,6 +25,30 @@ export const login = createAsyncThunk<
     return rejectWithValue((e as Error).message);
   }
 });
+
+export const googleLogin = createAsyncThunk<
+  AuthToken & { user: import("./auth.types").User | null },
+  string,
+  { rejectValue: string }
+>("auth/googleLogin", async (credential, { rejectWithValue }) => {
+  try {
+    const token = await authApi.googleLogin(credential);
+    tokenStorage.set(token.access_token);
+    const identity = readTokenUser(token.access_token);
+    let user: import("./auth.types").User | null = null;
+    if (identity.id) {
+      try {
+        user = await authApi.me(identity.id);
+      } catch {
+        // Login still succeeds when the optional profile endpoint is unavailable.
+      }
+    }
+    return { ...token, user };
+  } catch (e) {
+    return rejectWithValue((e as Error).message);
+  }
+});
+
 export const register = createAsyncThunk<
   { message: string },
   RegisterPayload,

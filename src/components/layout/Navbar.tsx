@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
+import { useAppSelector } from "../../hooks/redux";
 
 type NavigationLink = {
   to: string;
@@ -65,6 +66,7 @@ function navLinkClass({
 
 export function Navbar() {
   const location = useLocation();
+  const { token } = useAppSelector((state) => state.auth);
   const isHome = location.pathname === "/";
   const [hasScrolled, setHasScrolled] = useState(false);
   const transparentHome = isHome && !hasScrolled;
@@ -107,13 +109,17 @@ export function Navbar() {
             className="ml-auto flex min-w-0 items-center justify-start gap-1 overflow-x-auto py-2 sm:justify-end"
             aria-label="Main navigation"
           >
-            {navigationLinks.map((link) => (
+            {navigationLinks.map((link) => {
+              const requiresLogin = link.to === "/profile" && !token;
+              const target = requiresLogin ? "/login" : link.to;
+              return (
               <NavLink
                 key={link.to}
-                to={link.to}
+                to={target}
+                state={requiresLogin ? { returnTo: location.pathname + location.search } : undefined}
                 end={link.end}
-                aria-label={link.label}
-                title={link.label}
+                aria-label={requiresLogin ? "Sign in" : link.label}
+                title={requiresLogin ? "Sign in" : link.label}
                 className={({ isActive }) => navLinkClass({ isActive, isHome: transparentHome })}
               >
                 {link.to === "/favorites" ? (
@@ -160,7 +166,8 @@ export function Navbar() {
                   link.label
                 )}
               </NavLink>
-            ))}
+              );
+            })}
           </nav>
         </div>
       </div>

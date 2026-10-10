@@ -9,6 +9,11 @@ import type {
 export const authApi = {
   login: (body: LoginCredentials) =>
     request<AuthToken>("/auth/login", { method: "POST", ...jsonBody(body) }),
+  googleLogin: (credential: string) =>
+    request<AuthToken>("/auth/google", {
+      method: "POST",
+      ...jsonBody({ credential }),
+    }),
   register: (body: RegisterPayload) =>
     request<{ message: string }>("/auth/register", {
       method: "POST",
