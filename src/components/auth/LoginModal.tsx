@@ -10,7 +10,6 @@ import { AuthModalFrame } from "./AuthModalFrame";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 
 export function LoginModal() {
-  
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,17 +21,31 @@ export function LoginModal() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     dispatch(clearAuthError());
+
     try {
       const session = await dispatch(
-        login({ email: email.trim(), password }),
+        login({
+          email: email.trim(),
+          password,
+        }),
       ).unwrap();
-      const role = session.user?.role ?? readTokenUser(session.access_token).role;
-      navigate(role === "AGENT" ? "/agent" : returnTo || "/profile", {
-        replace: true,
-      });
+
+      const role =
+        session.user?.role ?? readTokenUser(session.access_token).role;
+
+      if (role === "AGENT") {
+        navigate("/agent", {
+          replace: true,
+        });
+      } else {
+        navigate(returnTo || "/profile", {
+          replace: true,
+        });
+      }
     } catch {
-      // Redux auth state displays the rejected request message.
+      // Redux auth state displays the login error.
     }
   }
 

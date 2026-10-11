@@ -1,6 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 import { tokenStorage, readTokenUser } from "../../utils/storage";
+
 import { googleLogin, login, register } from "./auth.thunks";
+
 import type { User } from "./auth.types";
 
 const token = tokenStorage.get();
@@ -16,9 +19,15 @@ interface AuthState {
 
 const initialState: AuthState = {
   token,
-  user: identity.id
-    ? ({ id: identity.id, role: identity.role ?? "BUYER" } as User)
-    : null,
+
+  user:
+    identity.id && identity.role
+      ? ({
+          id: identity.id,
+          role: identity.role,
+        } as User)
+      : null,
+
   status: "idle",
   error: null,
   registrationMessage: null,
@@ -26,63 +35,90 @@ const initialState: AuthState = {
 
 const slice = createSlice({
   name: "auth",
+
   initialState,
+
   reducers: {
     loggedOut(state) {
       state.token = null;
       state.user = null;
       state.status = "idle";
       state.error = null;
+      state.registrationMessage = null;
     },
+
     clearAuthError(state) {
       state.error = null;
     },
   },
+
   extraReducers: (builder) => {
     builder
-      .addCase(login.pending, (s) => {
-        s.status = "loading";
-        s.error = null;
+      .addCase(login.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
       })
-      .addCase(login.fulfilled, (s, a) => {
-        s.status = "succeeded";
-        s.token = a.payload.access_token;
-        s.user = a.payload.user;
+
+      .addCase(login.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.token = action.payload.access_token;
+        state.user = action.payload.user;
+        state.error = null;
       })
-      .addCase(login.rejected, (s, a) => {
-        s.status = "failed";
-        s.error = a.payload ?? a.error.message ?? "Login failed";
-      });
-    builder
-      .addCase(googleLogin.pending, (s) => {
-        s.status = "loading";
-        s.error = null;
+
+      .addCase(login.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload ?? action.error.message ?? "Login failed";
       })
-      .addCase(googleLogin.fulfilled, (s, a) => {
-        s.status = "succeeded";
-        s.token = a.payload.access_token;
-        s.user = a.payload.user;
+
+      .addCase(googleLogin.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
       })
-      .addCase(googleLogin.rejected, (s, a) => {
-        s.status = "failed";
-        s.error = a.payload ?? a.error.message ?? "Google sign-in failed";
-      });
-    builder
-      .addCase(register.pending, (s) => {
-        s.status = "loading";
-        s.error = null;
-        s.registrationMessage = null;
+
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.token = action.payload.access_token;
+        state.user = action.payload.user;
+        state.error = null;
       })
-      .addCase(register.fulfilled, (s, a) => {
-        s.status = "succeeded";
-        s.registrationMessage = a.payload.message;
+
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          action.payload ?? action.error.message ?? "Google sign-in failed";
       })
-      .addCase(register.rejected, (s, a) => {
-        s.status = "failed";
-        s.error = a.payload ?? a.error.message ?? "Registration failed";
+
+      .addCase(register.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+        state.registrationMessage = null;
+      })
+
+      .addCase(register.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.registrationMessage = action.payload.message;
+      })
+
+      .addCase(register.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          action.payload ?? action.error.message ?? "Registration failed";
       });
   },
 });
+
 export const { loggedOut, clearAuthError } = slice.actions;
-export const logout = () => (dispatch: (action: ReturnType<typeof loggedOut>) => void) => { tokenStorage.clear(); dispatch(loggedOut()); };
+
+/**
+ * Logout the active account in this browser tab.
+ *
+ * The other role-specific tokens remain stored.
+ */
+export const logout =
+  () => (dispatch: (action: ReturnType<typeof loggedOut>) => void) => {
+    tokenStorage.clear();
+    dispatch(loggedOut());
+  };
+
 export default slice.reducer;
