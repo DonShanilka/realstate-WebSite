@@ -44,7 +44,7 @@ export default function Messages() {
   // The URL property ID is only the initial navigation context.
   const conversationPropertyId = selectedPropertyId;
 
-  const isSelfConversation =
+  const isSelfConversation = 
     currentUserId !== null &&
     selectedId !== null &&
     currentUserId === selectedId;
