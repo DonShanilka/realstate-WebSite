@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+
 import { useSearchParams } from "react-router-dom";
 
 import { ErrorAlert } from "../../components/ui";
 
 import ConversationList from "../../components/messages/ConversationList";
 import type { ConversationContact } from "../../components/messages/ConversationList";
+
 import ChatHeader from "../../components/messages/ChatHeader";
 import MessageList from "../../components/messages/MessageList";
 import MessageInput from "../../components/messages/MessageInput";
@@ -23,33 +25,35 @@ export default function Messages() {
   const [params] = useSearchParams();
 
   const propertyIdFromUrl = Number(params.get("property_id")) || null;
+
   const assignedAgentIdFromUrl = Number(params.get("agent_id")) || null;
 
   const dispatch = useAppDispatch();
 
   const { token, user } = useAppSelector((state) => state.auth);
+
   const messagesState = useAppSelector((state) => state.messages);
 
-  const currentUserId =
-    user?.id != null ? Number(user.id) : null;
+  const currentUserId = user?.id != null ? Number(user.id) : null;
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [selectedPropertyId, setSelectedPropertyId] =
-    useState<number | null>(null);
+
+  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
+    null,
+  );
 
   const [sending, setSending] = useState(false);
+
   const [localError, setLocalError] = useState<string | null>(null);
 
-  // Use the selected conversation's property ID.
-  // The URL property ID is only the initial navigation context.
   const conversationPropertyId = selectedPropertyId;
 
-  const isSelfConversation = 
+  const isSelfConversation =
     currentUserId !== null &&
     selectedId !== null &&
     currentUserId === selectedId;
 
-  // Load messages belonging to the logged-in user.
+  // Load the logged-in user's messages.
   useEffect(() => {
     if (!token) return;
 
@@ -60,34 +64,33 @@ export default function Messages() {
       });
   }, [dispatch, token]);
 
-  // Select a conversation when navigating from a property page.
+  // Open a conversation when navigating from a property page.
   useEffect(() => {
-    if (!propertyIdFromUrl || !assignedAgentIdFromUrl) return;
+    if (propertyIdFromUrl === null || assignedAgentIdFromUrl === null) {
+      return;
+    }
 
-    if (
-      currentUserId !== null &&
-      assignedAgentIdFromUrl === currentUserId
-    ) {
+    if (currentUserId !== null && assignedAgentIdFromUrl === currentUserId) {
       setSelectedId(null);
       setSelectedPropertyId(null);
+
       setLocalError(
         "The assigned agent ID matches your account. Please verify the property agent.",
       );
+
       return;
     }
 
     setSelectedId(assignedAgentIdFromUrl);
     setSelectedPropertyId(propertyIdFromUrl);
     setLocalError(null);
-  }, [
-    propertyIdFromUrl,
-    assignedAgentIdFromUrl,
-    currentUserId,
-  ]);
+  }, [propertyIdFromUrl, assignedAgentIdFromUrl, currentUserId]);
 
-  // Build the contact list using only messages involving the current user.
+  // Build the contact list from messages involving the current user.
   const contacts = useMemo<ConversationContact[]>(() => {
-    if (currentUserId === null) return [];
+    if (currentUserId === null) {
+      return [];
+    }
 
     const byConversation = new Map<string, ConversationContact>();
 
@@ -95,18 +98,12 @@ export default function Messages() {
       const senderId = Number(message.sender_id);
       const receiverId = Number(message.receiver_id);
 
-      // Ignore conversations belonging to other users.
-      if (
-        senderId !== currentUserId &&
-        receiverId !== currentUserId
-      ) {
+      if (senderId !== currentUserId && receiverId !== currentUserId) {
         continue;
       }
 
-      const contactId =
-        senderId === currentUserId ? receiverId : senderId;
+      const contactId = senderId === currentUserId ? receiverId : senderId;
 
-      // Never show the logged-in user as their own contact.
       if (
         !Number.isFinite(contactId) ||
         contactId <= 0 ||
@@ -115,7 +112,8 @@ export default function Messages() {
         continue;
       }
 
-      const contactPropertyId = message.property_id ?? null;
+      const contactPropertyId =
+        message.property_id != null ? Number(message.property_id) : null;
 
       const key = `${contactId}:${contactPropertyId ?? "general"}`;
 
@@ -128,27 +126,26 @@ export default function Messages() {
     return [...byConversation.values()];
   }, [messagesState.inbox, currentUserId]);
 
-  // Select the contact and its corresponding property.
+  // Select a contact.
   const handleSelectContact = useCallback(
     (contact: ConversationContact) => {
-      if (
-        currentUserId !== null &&
-        contact.userId === currentUserId
-      ) {
+      if (currentUserId !== null && contact.userId === currentUserId) {
         setLocalError("You cannot open a conversation with yourself.");
         return;
       }
 
-      // Update both values together in the same event.
-      setSelectedId(contact.userId);
-      setSelectedPropertyId(contact.propertyId);
+      setSelectedId(Number(contact.userId));
+
+      setSelectedPropertyId(
+        contact.propertyId != null ? Number(contact.propertyId) : null,
+      );
 
       setLocalError(null);
     },
     [currentUserId],
   );
 
-  // Load the currently selected conversation.
+  // Load the selected conversation.
   useEffect(() => {
     if (
       !token ||
@@ -161,39 +158,39 @@ export default function Messages() {
 
     let cancelled = false;
 
-    const loadConversation = async () => {
+    async function loadConversation() {
       try {
         if (conversationPropertyId !== null) {
           await dispatch(
             fetchPropertyConversation({
               propertyId: conversationPropertyId,
-              userId: selectedId,
+              userId: selectedId!,
             }),
           ).unwrap();
         } else {
-          await dispatch(fetchConversation(selectedId)).unwrap();
+          await dispatch(fetchConversation(selectedId!)).unwrap();
         }
       } catch (error: unknown) {
         if (!cancelled) {
           console.error("Could not load conversation:", error);
+
+          setLocalError(
+            error instanceof Error
+              ? error.message
+              : "Could not load this conversation.",
+          );
         }
       }
-    };
+    }
 
     void loadConversation();
 
     return () => {
       cancelled = true;
     };
-  }, [
-    token,
-    selectedId,
-    conversationPropertyId,
-    isSelfConversation,
-    dispatch,
-  ]);
+  }, [token, selectedId, conversationPropertyId, isSelfConversation, dispatch]);
 
-  // Mark the selected property conversation as read.
+  // Mark property-specific messages as read.
   useEffect(() => {
     if (
       !token ||
@@ -206,11 +203,11 @@ export default function Messages() {
 
     let cancelled = false;
 
-    const markAsRead = async () => {
+    async function markAsRead() {
       try {
         await messageApi.markPropertyConversationRead(
-          conversationPropertyId,
-          selectedId,
+          conversationPropertyId!,
+          selectedId!,
         );
 
         if (!cancelled) {
@@ -221,22 +218,16 @@ export default function Messages() {
           console.error("Could not mark messages as read:", error);
         }
       }
-    };
+    }
 
     void markAsRead();
 
     return () => {
       cancelled = true;
     };
-  }, [
-    token,
-    selectedId,
-    conversationPropertyId,
-    isSelfConversation,
-    dispatch,
-  ]);
+  }, [token, selectedId, conversationPropertyId, isSelfConversation, dispatch]);
 
-  // Send a message to the selected contact.
+  // Send a message.
   const handleSendMessage = useCallback(
     async (message: string): Promise<void> => {
       if (!token) {
@@ -249,10 +240,7 @@ export default function Messages() {
         return;
       }
 
-      if (
-        currentUserId !== null &&
-        selectedId === currentUserId
-      ) {
+      if (currentUserId !== null && selectedId === currentUserId) {
         setLocalError("You cannot send a message to yourself.");
         return;
       }
@@ -272,7 +260,6 @@ export default function Messages() {
           }),
         ).unwrap();
 
-        // Reload only the conversation that received the message.
         if (propertyId !== null) {
           await dispatch(
             fetchPropertyConversation({
@@ -286,27 +273,24 @@ export default function Messages() {
 
         await dispatch(fetchMyMessages()).unwrap();
       } catch (error: unknown) {
+        console.error("Could not send message:", error);
+
         const errorMessage =
           error instanceof Error
             ? error.message
             : "Could not send the message.";
 
         setLocalError(errorMessage);
+
         throw error;
       } finally {
         setSending(false);
       }
     },
-    [
-      token,
-      selectedId,
-      currentUserId,
-      conversationPropertyId,
-      dispatch,
-    ],
+    [token, selectedId, currentUserId, conversationPropertyId, dispatch],
   );
 
-  // Match the Redux cache key used for the selected conversation.
+  // Match the Redux conversation cache key.
   const conversationKey =
     selectedId !== null
       ? conversationPropertyId !== null
@@ -314,43 +298,29 @@ export default function Messages() {
         : String(selectedId)
       : null;
 
-  // Only show messages between the logged-in user and selected contact.
+  // Filter messages to the selected contact only.
   const activeMessages = useMemo(() => {
-    if (
-      !conversationKey ||
-      selectedId === null ||
-      currentUserId === null
-    ) {
+    if (!conversationKey || selectedId === null || currentUserId === null) {
       return [];
     }
 
-    const conversation =
-      messagesState.conversations[conversationKey] ?? [];
+    const conversation = messagesState.conversations[conversationKey] ?? [];
 
     return conversation.filter((message) => {
       const senderId = Number(message.sender_id);
       const receiverId = Number(message.receiver_id);
 
       return (
-        (senderId === currentUserId &&
-          receiverId === selectedId) ||
-        (senderId === selectedId &&
-          receiverId === currentUserId)
+        (senderId === currentUserId && receiverId === selectedId) ||
+        (senderId === selectedId && receiverId === currentUserId)
       );
     });
-  }, [
-    conversationKey,
-    messagesState.conversations,
-    currentUserId,
-    selectedId,
-  ]);
+  }, [conversationKey, messagesState.conversations, currentUserId, selectedId]);
 
   return (
-    <main className="w-full px-[50px] py-10 sm:px-[100px]">
+    <main className="w-full px-5 py-10 sm:px-10 lg:px-[100px]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">
-          Messages
-        </h1>
+        <h1 className="text-3xl font-bold text-slate-900">Messages</h1>
 
         <p className="mt-2 text-slate-500">
           {conversationPropertyId !== null
@@ -359,19 +329,15 @@ export default function Messages() {
         </p>
       </div>
 
-      {!token && (
-        <ErrorAlert message="Sign in to access your messages." />
-      )}
+      {!token && <ErrorAlert message="Sign in to access your messages." />}
 
       {(localError || messagesState.error) && (
         <div className="mb-4">
-          <ErrorAlert
-            message={localError || messagesState.error || ""}
-          />
+          <ErrorAlert message={localError || messagesState.error || ""} />
         </div>
       )}
 
-      <div className="grid min-h-[500px] overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-[280px_1fr]">
+      <div className="grid min-h-[500px] overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-[280px_minmax(0,1fr)]">
         <ConversationList
           contacts={contacts}
           selectedId={selectedId}
@@ -380,7 +346,7 @@ export default function Messages() {
           onSelect={handleSelectContact}
         />
 
-        <section className="flex min-h-[500px] flex-col">
+        <section className="flex min-h-[500px] min-w-0 flex-col">
           {selectedId !== null && !isSelfConversation ? (
             <>
               <ChatHeader
@@ -393,10 +359,7 @@ export default function Messages() {
                 currentUserId={currentUserId ?? -1}
               />
 
-              <MessageInput
-                sending={sending}
-                onSend={handleSendMessage}
-              />
+              <MessageInput sending={sending} onSend={handleSendMessage} />
             </>
           ) : (
             <div className="m-auto max-w-md p-6 text-center">
