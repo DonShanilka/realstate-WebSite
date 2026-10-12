@@ -2,8 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { ErrorAlert, Spinner } from "../../components/ui";
-import { AgentPageHeader } from "../../components/agent/AgentPageHeader";
+import AgentMessagesUI from "../../components/agent/messages/AgentMessagesUI";
+
+import type {
+  AgentConversationItem,
+  AgentChatMessage,
+} from "../../components/agent/messages/types";
 
 import {
   messageApi,
@@ -19,30 +23,39 @@ export default function AgentMessages() {
   const dispatch = useAppDispatch();
   const [params] = useSearchParams();
 
+  // Optional IDs when navigating from a property or buyer page.
   const propertyId = Number(params.get("property_id")) || null;
   const buyerId = Number(params.get("buyer_id")) || null;
 
+  // Logged-in agent ID.
   const userId = useAppSelector((state) => {
     const id = state.auth.user?.id;
     return id != null ? Number(id) : null;
   });
 
+  // Inbox conversations.
   const [conversations, setConversations] = useState<AgentInboxConversation[]>(
     [],
   );
 
+  // Currently selected conversation.
   const [selected, setSelected] = useState<AgentInboxConversation | null>(null);
 
+  // Messages belonging to the selected conversation.
   const [thread, setThread] = useState<Message[]>([]);
+
+  // Message input.
   const [draft, setDraft] = useState("");
 
+  // Loading states.
   const [loading, setLoading] = useState(true);
   const [threadLoading, setThreadLoading] = useState(false);
   const [sending, setSending] = useState(false);
 
+  // Error message.
   const [error, setError] = useState("");
 
-  // Load the agent's inbox.
+  // Load agent inbox
   const loadInbox = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -53,7 +66,7 @@ export default function AgentMessages() {
       setConversations(data);
 
       setSelected((current) => {
-        // Preserve the current conversation after refreshing.
+        // Keep the current conversation selected after refreshing.
         if (current) {
           return (
             data.find(
@@ -64,8 +77,7 @@ export default function AgentMessages() {
           );
         }
 
-        // Select the requested conversation when navigating
-        // from a property or buyer page.
+        // Select a conversation requested through URL parameters.
         if (propertyId !== null && buyerId !== null) {
           return (
             data.find(
@@ -95,7 +107,7 @@ export default function AgentMessages() {
     void loadInbox();
   }, [loadInbox]);
 
-  // Load the selected buyer's conversation.
+  // Load selected conversation and mark it as read
   useEffect(() => {
     if (!selected) {
       setThread([]);
@@ -116,31 +128,42 @@ export default function AgentMessages() {
           Number(selected!.buyer_id),
         );
 
-        if (!active) return;
+        if (!active) {
+          return;
+        }
 
-        // Protect the component from unexpected response shapes.
         if (Array.isArray(data)) {
           setThread(data);
         } else {
           console.error("Unexpected conversation response:", data);
+
           setThread([]);
           setError("The conversation returned an unexpected response.");
+
           return;
         }
 
-        // Mark the conversation as read.
+        // Mark incoming messages as read.
         try {
           await messageApi.markPropertyConversationRead(
             Number(selected!.property_id),
             Number(selected!.buyer_id),
           );
 
-          // Refresh the inbox to update unread counts.
+          if (!active) {
+            return;
+          }
+
+          // Refresh inbox so unread badges display the latest counts.
           const updatedInbox = await messageApi.agentInbox();
+
+          if (!active) {
+            return;
+          }
 
           setConversations(updatedInbox);
 
-          // Keep the currently selected conversation open.
+          // Update selected conversation without changing its IDs.
           const updatedSelected = updatedInbox.find(
             (item) =>
               Number(item.property_id) === Number(selected!.property_id) &&
@@ -157,7 +180,9 @@ export default function AgentMessages() {
           );
         }
       } catch (cause) {
-        if (!active) return;
+        if (!active) {
+          return;
+        }
 
         console.error("Failed to load conversation:", cause);
 
@@ -180,7 +205,7 @@ export default function AgentMessages() {
     };
   }, [selected?.property_id, selected?.buyer_id]);
 
-  // Send a reply to the selected buyer.
+  // Send message
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -194,6 +219,7 @@ export default function AgentMessages() {
     setError("");
 
     try {
+      // Send message using your existing Redux thunk.
       const sent = await dispatch(
         sendMessage({
           receiver_id: Number(selected.buyer_id),
@@ -202,6 +228,7 @@ export default function AgentMessages() {
         }),
       ).unwrap();
 
+      // Add the new message without duplicating it.
       setThread((current) => {
         const alreadyExists = current.some(
           (item) => Number(item.id) === Number(sent.id),
@@ -216,7 +243,7 @@ export default function AgentMessages() {
 
       setDraft("");
 
-      // Refresh the inbox without closing the selected conversation.
+      // Refresh inbox previews and unread counts.
       try {
         const data = await messageApi.agentInbox();
 
@@ -249,7 +276,11 @@ export default function AgentMessages() {
     }
   }
 
-  // Safely render last_message whether it is a string or an object.
+  // Normalize last_message
+  /**
+   * Depending on the backend response, last_message may be
+   * a string or an object containing a message property.
+   */
   function getLastMessageText(conversation: AgentInboxConversation): string {
     const lastMessage: unknown = conversation.last_message;
 
@@ -272,178 +303,70 @@ export default function AgentMessages() {
     return "No messages yet";
   }
 
+  // Prepare data for the UI components
+  const uiConversations: AgentConversationItem[] = conversations.map(
+    (conversation) => ({
+      property_id: Number(conversation.property_id),
+      property_title: conversation.property_title || "Property",
+      buyer_id: Number(conversation.buyer_id),
+      buyer_name: conversation.buyer_name || "Buyer",
+      buyer_email: conversation.buyer_email || "",
+      last_message: getLastMessageText(conversation),
+      last_message_at: conversation.last_message_at,
+      unread_count: Number(conversation.unread_count) || 0,
+    }),
+  );
+
+  const uiSelectedConversation: AgentConversationItem | null = selected
+    ? {
+        property_id: Number(selected.property_id),
+        property_title: selected.property_title || "Property",
+        buyer_id: Number(selected.buyer_id),
+        buyer_name: selected.buyer_name || "Buyer",
+        buyer_email: selected.buyer_email || "",
+        last_message: getLastMessageText(selected),
+        last_message_at: selected.last_message_at,
+        unread_count: Number(selected.unread_count) || 0,
+      }
+    : null;
+
+  const uiMessages: AgentChatMessage[] = thread.map((message) => ({
+    id: Number(message.id),
+    sender_id: Number(message.sender_id),
+    receiver_id: Number(message.receiver_id),
+    property_id: Number(message.property_id ?? selected?.property_id ?? 0),
+    message: message.message,
+    created_at: message.created_at,
+  }));
+
+  // Render UI-only component
   return (
-    <main className="mx-auto w-full max-w-[1440px] px-5 py-8 sm:px-8 sm:py-10">
-      <AgentPageHeader
-        eyebrow="Buyer conversations"
-        title="Messages"
-        description="Reply to buyers in the context of the property they contacted you about."
-      />
+    <AgentMessagesUI
+      conversations={uiConversations}
+      selectedConversation={uiSelectedConversation}
+      messages={uiMessages}
+      currentUserId={userId}
+      draft={draft}
+      loading={loading}
+      threadLoading={threadLoading}
+      sending={sending}
+      error={error}
+      onSelectConversation={(conversation: any) => {
+        setSelected({
+          property_id: conversation.property_id,
+          property_title: conversation.property_title,
+          buyer_id: conversation.buyer_id,
+          buyer_name: conversation.buyer_name,
+          buyer_email: conversation.buyer_email || "",
+          last_message: conversation.last_message,
+          last_message_at: conversation.last_message_at,
+          unread_count: conversation.unread_count,
+        });
 
-      {error && (
-        <div className="mb-4">
-          <ErrorAlert message={error} />
-        </div>
-      )}
-
-      <div className="grid min-h-[560px] overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-[320px_minmax(0,1fr)]">
-        {/* Buyer inbox */}
-        <aside className="border-b border-slate-200 md:border-b-0 md:border-r">
-          <div className="border-b border-slate-200 px-5 py-4">
-            <h2 className="font-semibold text-slate-900">Buyer inbox</h2>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Conversations are grouped by property and buyer.
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="p-5">
-              <Spinner label="Loading buyer conversations" />
-            </div>
-          ) : conversations.length === 0 ? (
-            <div className="p-6 text-center text-sm leading-6 text-slate-500">
-              No buyer messages yet. Messages about your assigned properties
-              will appear here.
-            </div>
-          ) : (
-            conversations.map((conversation) => {
-              const active =
-                Number(selected?.property_id) ===
-                  Number(conversation.property_id) &&
-                Number(selected?.buyer_id) === Number(conversation.buyer_id);
-
-              return (
-                <button
-                  key={`${conversation.property_id}:${conversation.buyer_id}`}
-                  type="button"
-                  onClick={() => {
-                    setSelected(conversation);
-                    setError("");
-                  }}
-                  aria-pressed={active}
-                  className={`w-full border-b border-slate-100 p-4 text-left transition hover:bg-slate-50 ${
-                    active ? "bg-slate-50" : ""
-                  }`}
-                >
-                  <span className="flex items-center justify-between gap-3">
-                    <span className="font-semibold text-slate-900">
-                      {conversation.buyer_name || "Buyer"}
-                    </span>
-
-                    {Number(conversation.unread_count) > 0 && (
-                      <span className="rounded-full bg-slate-950 px-2 py-0.5 text-xs text-white">
-                        {conversation.unread_count}
-                      </span>
-                    )}
-                  </span>
-
-                  <span className="mt-1 block text-xs text-slate-500">
-                    {conversation.property_title || "Property"}
-                  </span>
-
-                  <span className="mt-2 block truncate text-sm text-slate-600">
-                    {getLastMessageText(conversation)}
-                  </span>
-                </button>
-              );
-            })
-          )}
-        </aside>
-
-        {/* Conversation panel */}
-        <section className="flex min-h-[560px] min-w-0 flex-col">
-          {selected ? (
-            <>
-              <header className="border-b border-slate-200 px-5 py-4">
-                <p className="font-semibold text-slate-900">
-                  {selected.buyer_name || "Buyer"}
-                </p>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  {selected.property_title || "Property"}
-                </p>
-              </header>
-
-              {/* Message history */}
-              <div className="flex-1 space-y-3 overflow-y-auto p-5">
-                {threadLoading && <Spinner label="Loading conversation" />}
-
-                {!threadLoading &&
-                  thread.map((message) => {
-                    const isOwnMessage = Number(message.sender_id) === userId;
-
-                    return (
-                      <div
-                        key={message.id}
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 ${
-                          isOwnMessage
-                            ? "ml-auto bg-slate-950 text-white"
-                            : "bg-slate-100 text-slate-900"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap break-words">
-                          {message.message}
-                        </p>
-
-                        <p
-                          className={`mt-1 text-[10px] ${
-                            isOwnMessage ? "text-slate-300" : "text-slate-500"
-                          }`}
-                        >
-                          {message.created_at
-                            ? new Date(message.created_at).toLocaleString()
-                            : ""}
-                        </p>
-                      </div>
-                    );
-                  })}
-
-                {!threadLoading && thread.length === 0 && (
-                  <p className="text-sm text-slate-500">
-                    No messages in this conversation yet.
-                  </p>
-                )}
-              </div>
-
-              {/* Message input */}
-              <form
-                onSubmit={submit}
-                className="flex gap-2 border-t border-slate-200 p-4"
-              >
-                <input
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  aria-label="Write a reply"
-                  placeholder="Write a reply..."
-                  className="min-w-0 flex-1 rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-600"
-                />
-
-                <button
-                  type="submit"
-                  disabled={sending || !draft.trim()}
-                  className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {sending ? "Sending..." : "Send"}
-                </button>
-              </form>
-            </>
-          ) : (
-            <div className="m-auto max-w-sm px-6 text-center">
-              <div className="text-3xl">◇</div>
-
-              <h2 className="mt-3 font-semibold text-slate-900">
-                Choose a conversation
-              </h2>
-
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                Select a buyer to read and reply to messages connected to a
-                property.
-              </p>
-            </div>
-          )}
-        </section>
-      </div>
-    </main>
+        setError("");
+      }}
+      onDraftChange={setDraft}
+      onSendMessage={submit}
+    />
   );
 }
