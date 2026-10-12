@@ -54,26 +54,39 @@ export default function AgentInboxItem({
       }`}
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+        {/* Buyer avatar */}
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
           {conversation.buyer_name?.charAt(0).toUpperCase() || "B"}
         </div>
 
         <div className="min-w-0 flex-1">
+          {/* Property title + buyer name + time */}
           <div className="flex items-start justify-between gap-2">
-            <h3 className="truncate text-sm font-semibold text-slate-900">
-              {conversation.buyer_name || "Unknown buyer"}
-            </h3>
+            <div className="flex min-w-0 flex-1 items-center gap-1.5">
+              {/* <p
+                className="shrink min-w-0 truncate text-xs font-medium text-slate-600"
+                title={conversation.property_title || "Property"}
+              >
+                {conversation.property_title || "Property"}
+              </p> */}
+
+              {/* <span className="shrink-0 text-xs text-slate-400">·</span> */}
+
+              <h3
+                className="min-w-0 flex-1 truncate text-sm font-bold text-slate-900"
+                title={conversation.buyer_name || "Unknown buyer"}
+              >
+                {conversation.buyer_name || "Unknown buyer"}
+              </h3>
+            </div>
 
             <span className="shrink-0 text-xs text-slate-400">
               {formatTime(conversation.last_message_at)}
             </span>
           </div>
 
-          <p className="mt-1 truncate text-xs font-medium text-slate-600">
-            {conversation.property_title || "Property"}
-          </p>
-
-          <div className="mt-2 flex items-center justify-between gap-2">
+          {/* Last message + unread count */}
+          <div className=" flex items-center justify-between gap-2">
             <p className="min-w-0 flex-1 truncate text-sm text-slate-500">
               {lastMessageText}
             </p>

@@ -1,19 +1,25 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+
 import { AgentEmptyState } from "../../components/agent/AgentEmptyState";
 import { AgentPageHeader } from "../../components/agent/AgentPageHeader";
-import { AgentPropertyCard } from "../../components/agent/AgentPropertyCard";
+import { AgentPropertyCard } from "../../components/agent/properties/AgentPropertyCard";
+
 import { ErrorAlert, Spinner } from "../../components/ui";
+
 import { fetchAssignedProperties } from "../../features/properties/property.thunks";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 
 export default function AgentProperties() {
   const dispatch = useAppDispatch();
+
   const auth = useAppSelector((state) => state.auth);
   const properties = useAppSelector((state) => state.properties);
 
   useEffect(() => {
-    if (auth.token) void dispatch(fetchAssignedProperties());
+    if (auth.token) {
+      void dispatch(fetchAssignedProperties());
+    }
   }, [auth.token, dispatch]);
 
   const myProperties = properties.assignedItems;
@@ -37,7 +43,11 @@ export default function AgentProperties() {
       {properties.status === "loading" && (
         <Spinner label="Loading your assigned properties" />
       )}
-      {properties.error && <ErrorAlert message={properties.error} />}
+
+      {properties.error && (
+        <ErrorAlert message={properties.error} />
+      )}
+
       {properties.status === "succeeded" && myProperties.length === 0 && (
         <AgentEmptyState
           icon="⌂"
@@ -53,10 +63,14 @@ export default function AgentProperties() {
           }
         />
       )}
+
       {myProperties.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {myProperties.map((property) => (
-            <AgentPropertyCard key={property.id} property={property} />
+            <AgentPropertyCard
+              key={property.id}
+              property={property}
+            />
           ))}
         </div>
       )}

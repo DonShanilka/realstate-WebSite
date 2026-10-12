@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Property } from "../../types";
-import { PropertyGrid } from "../property/PropertyCard";
+// import { PropertyGrid } from "../property/PropertyCard";
 import { ErrorAlert, Spinner } from "../ui";
 
 export function PropertiesSection({
@@ -90,9 +90,9 @@ export function PropertiesSection({
               No properties found in this category.
             </p>
           )}
-        {visibleProperties.length > 0 && (
+        {/* {visibleProperties.length > 0 && (
           <PropertyGrid properties={visibleProperties} />
-        )}
+        )} */}
       </div>
     </section>
   );

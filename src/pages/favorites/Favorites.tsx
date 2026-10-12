@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { PropertyGrid } from "../../components/property/PropertyCard";
+// import { PropertyGrid } from "../../components/property/PropertyCard";
 import { ErrorAlert, Spinner } from "../../components/ui";
 import { fetchFavorites } from "../../features/favorites/favorites.thunks";
 import { fetchProperties } from "../../features/properties/property.thunks";
@@ -44,9 +44,9 @@ export default function Favorites() {
       )}
       {favorites.status === "loading" && <Spinner label="Loading favorites" />}
       {favorites.error && <ErrorAlert message={favorites.error} />}
-      {favorites.status === "succeeded" && cards.length > 0 && (
+      {/* {favorites.status === "succeeded" && cards.length > 0 && (
         <PropertyGrid properties={cards} />
-      )}
+      )} */}
       {auth.token &&
         favorites.status === "succeeded" &&
         favorites.items.length === 0 && (
