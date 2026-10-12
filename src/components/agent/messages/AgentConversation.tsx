@@ -4,8 +4,6 @@ import AgentMessageInput from "./AgentMessageInput";
 
 import type { AgentChatMessage, AgentConversationItem } from "./types";
 
-import type { FormEvent } from "react";
-
 interface AgentConversationProps {
   conversation: AgentConversationItem;
   messages: AgentChatMessage[];
@@ -14,7 +12,7 @@ interface AgentConversationProps {
   threadLoading: boolean;
   sending: boolean;
   onDraftChange: (value: string) => void;
-  onSendMessage: (event: FormEvent<HTMLFormElement>) => void;
+  onSendMessage: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export default function AgentConversation({
@@ -28,9 +26,14 @@ export default function AgentConversation({
   onSendMessage,
 }: AgentConversationProps) {
   return (
-    <section className="flex min-h-[560px] min-w-0 flex-col bg-slate-50">
-      <AgentMessageHeader conversation={conversation} />
-      <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4 sm:p-6">
+    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-slate-50">
+      {/* Header stays at the top */}
+      <div className="shrink-0">
+        <AgentMessageHeader conversation={conversation} />
+      </div>
+
+      {/* Only this area scrolls */}
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-contain p-4 sm:p-6">
         {threadLoading ? (
           <div className="m-auto space-y-4">
             <div className="h-12 w-56 animate-pulse rounded-2xl bg-slate-200" />
@@ -62,12 +65,15 @@ export default function AgentConversation({
         )}
       </div>
 
-      <AgentMessageInput
-        value={draft}
-        sending={sending}
-        onChange={onDraftChange}
-        onSubmit={onSendMessage}
-      />
+      {/* Input stays at the bottom */}
+      <div className="shrink-0">
+        <AgentMessageInput
+          value={draft}
+          sending={sending}
+          onChange={onDraftChange}
+          onSubmit={onSendMessage}
+        />
+      </div>
     </section>
   );
 }
