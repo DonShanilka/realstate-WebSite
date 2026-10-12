@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import { useSearchParams } from "react-router-dom";
 
 import { ErrorAlert } from "../../components/ui";
@@ -25,25 +24,20 @@ export default function Messages() {
   const [params] = useSearchParams();
 
   const propertyIdFromUrl = Number(params.get("property_id")) || null;
-
   const assignedAgentIdFromUrl = Number(params.get("agent_id")) || null;
 
   const dispatch = useAppDispatch();
 
   const { token, user } = useAppSelector((state) => state.auth);
-
   const messagesState = useAppSelector((state) => state.messages);
 
   const currentUserId = user?.id != null ? Number(user.id) : null;
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
     null,
   );
-
   const [sending, setSending] = useState(false);
-
   const [localError, setLocalError] = useState<string | null>(null);
 
   const conversationPropertyId = selectedPropertyId;
@@ -86,11 +80,9 @@ export default function Messages() {
     setLocalError(null);
   }, [propertyIdFromUrl, assignedAgentIdFromUrl, currentUserId]);
 
-  // Build the contact list from messages involving the current user.
+  // Build the contact list from existing messages.
   const contacts = useMemo<ConversationContact[]>(() => {
-    if (currentUserId === null) {
-      return [];
-    }
+    if (currentUserId === null) return [];
 
     const byConversation = new Map<string, ConversationContact>();
 
@@ -135,11 +127,9 @@ export default function Messages() {
       }
 
       setSelectedId(Number(contact.userId));
-
       setSelectedPropertyId(
         contact.propertyId != null ? Number(contact.propertyId) : null,
       );
-
       setLocalError(null);
     },
     [currentUserId],
@@ -232,17 +222,17 @@ export default function Messages() {
     async (message: string): Promise<void> => {
       if (!token) {
         setLocalError("Please sign in to send messages.");
-        return;
+        throw new Error("Please sign in to send messages.");
       }
 
       if (selectedId === null) {
         setLocalError("Please select a conversation.");
-        return;
+        throw new Error("Please select a conversation.");
       }
 
       if (currentUserId !== null && selectedId === currentUserId) {
         setLocalError("You cannot send a message to yourself.");
-        return;
+        throw new Error("You cannot send a message to yourself.");
       }
 
       const receiverId = selectedId;
@@ -281,7 +271,6 @@ export default function Messages() {
             : "Could not send the message.";
 
         setLocalError(errorMessage);
-
         throw error;
       } finally {
         setSending(false);
@@ -317,36 +306,60 @@ export default function Messages() {
     });
   }, [conversationKey, messagesState.conversations, currentUserId, selectedId]);
 
+  const isLoadingContacts = messagesState.status === "loading";
+
   return (
-    <main className="w-full px-5 py-10 sm:px-10 lg:px-[100px]">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Messages</h1>
-
-        <p className="mt-2 text-slate-500">
-          {conversationPropertyId !== null
-            ? `Discuss property #${conversationPropertyId} directly with its assigned agent.`
-            : "Chat directly with property contacts."}
+    <main className="mx-auto flex min-h-[calc(100dvh-80px)] w-full max-w-[1440px] flex-col px-4 py-6 sm:px-8 sm:py-8">
+      {/* Page header */}
+      <header className="mb-6 shrink-0">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
+          Buyer communications
         </p>
-      </div>
 
-      {!token && <ErrorAlert message="Sign in to access your messages." />}
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+              Messages
+            </h1>
+
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
+              Chat directly with property agents and manage your conversations
+              in one place.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            Private conversations
+          </div>
+        </div>
+      </header>
+
+      {!token && (
+        <div className="mb-4 shrink-0">
+          <ErrorAlert message="Sign in to access your messages." />
+        </div>
+      )}
 
       {(localError || messagesState.error) && (
-        <div className="mb-4">
+        <div className="mb-4 shrink-0">
           <ErrorAlert message={localError || messagesState.error || ""} />
         </div>
       )}
 
-      <div className="grid min-h-[500px] overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-[280px_minmax(0,1fr)]">
+      {/* Main inbox layout */}
+      <section className="grid min-h-[650px] flex-1 grid-cols-1 grid-rows-[minmax(200px,34%)_minmax(420px,1fr)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm md:min-h-[600px] md:grid-cols-[320px_minmax(0,1fr)] md:grid-rows-1">
+        {/* Conversation sidebar */}
         <ConversationList
           contacts={contacts}
           selectedId={selectedId}
           selectedPropertyId={conversationPropertyId}
-          loading={messagesState.status === "loading"}
+          loading={isLoadingContacts}
           onSelect={handleSelectContact}
         />
 
-        <section className="flex min-h-[500px] min-w-0 flex-col">
+        {/* Chat panel */}
+        <section className="flex min-h-0 min-w-0 flex-col overflow-hidden bg-white">
           {selectedId !== null && !isSelfConversation ? (
             <>
               <ChatHeader
@@ -362,20 +375,51 @@ export default function Messages() {
               <MessageInput sending={sending} onSend={handleSendMessage} />
             </>
           ) : (
-            <div className="m-auto max-w-md p-6 text-center">
-              <div className="text-4xl">💬</div>
+            <div className="flex min-h-[420px] flex-1 items-center justify-center bg-slate-50/70 p-6 sm:p-10">
+              <div className="max-w-sm text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 bg-white text-blue-600 shadow-sm">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="h-8 w-8"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M7 18.5 3.5 20l1-4A8.5 8.5 0 1 1 7 18.5Z"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M8 10h8M8 13.5h5"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
 
-              <h2 className="mt-3 font-semibold text-slate-900">
-                Select a conversation
-              </h2>
+                <h2 className="mt-5 text-lg font-semibold text-slate-900">
+                  Your messages
+                </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Your messages will appear here.
-              </p>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Select a conversation from your inbox to view your messages
+                  and chat with the property agent.
+                </p>
+
+                {contacts.length === 0 && !isLoadingContacts && (
+                  <p className="mt-4 text-xs leading-5 text-slate-400">
+                    Conversations will appear here when messages are exchanged
+                    with an agent.
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </section>
-      </div>
+      </section>
     </main>
   );
 }

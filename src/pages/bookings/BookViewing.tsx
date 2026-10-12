@@ -14,9 +14,12 @@ export default function BookViewing() {
   const auth = useAppSelector((state) => state.auth);
   const userRole = auth.user?.role ?? readTokenUser(auth.token).role;
   const bookingStatus = useAppSelector((state) => state.bookings.status);
-  const property = useAppSelector((state) =>
-    state.properties.items.find((item) => item.id === propertyId) ??
-      (state.properties.selected?.id === propertyId ? state.properties.selected : null),
+  const property = useAppSelector(
+    (state) =>
+      state.properties.items.find((item) => item.id === propertyId) ??
+      (state.properties.selected?.id === propertyId
+        ? state.properties.selected
+        : null),
   );
   const propertyStatus = useAppSelector((state) => state.properties.status);
   const [checkIn, setCheckIn] = useState("");
@@ -34,11 +37,20 @@ export default function BookViewing() {
     setError("");
     setSaved(false);
     if (!auth.token) return setError("Sign in before requesting a viewing.");
-    if (userRole !== "BUYER") return setError("Only a buyer account can request a property viewing. Sign in with a buyer account to continue.");
+    if (userRole !== "BUYER")
+      return setError(
+        "Only a buyer account can request a property viewing. Sign in with a buyer account to continue.",
+      );
     if (!Number.isInteger(propertyId) || propertyId <= 0)
       return setError("Choose a property before booking a viewing.");
-    if (!property) return setError("The property details are still loading. Please try again shortly.");
-    if (!property.agent_id) return setError("This property does not have an agent assigned yet, so a viewing request cannot be routed.");
+    if (!property)
+      return setError(
+        "The property details are still loading. Please try again shortly.",
+      );
+    if (!property.agent_id)
+      return setError(
+        "This property does not have an agent assigned yet, so a viewing request cannot be routed.",
+      );
     if (!checkIn || !checkOut || new Date(checkOut) <= new Date(checkIn))
       return setError("Choose an end date and time after the start date.");
     try {
@@ -59,7 +71,7 @@ export default function BookViewing() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Book a Viewing</h1>
         <p className="mt-2 text-slate-500">
-            Your request will be sent to the agent assigned to this property.
+          Your request will be sent to the agent assigned to this property.
         </p>
       </div>
       {!propertyId ? (
@@ -88,7 +100,11 @@ export default function BookViewing() {
               View details →
             </Link>
             <p className="mt-2 text-xs text-slate-500">
-              {property?.agent_id ? `Assigned agent · #${property.agent_id}` : property ? "No agent has been assigned to this listing yet." : "Loading property and assigned agent…"}
+              {property?.agent_id
+                ? `Assigned agent · #${property.agent_id}`
+                : property
+                  ? "No agent has been assigned to this listing yet."
+                  : "Loading property and assigned agent…"}
             </p>
           </div>
           {property && !property.agent_id && (

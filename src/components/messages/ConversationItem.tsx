@@ -15,19 +15,46 @@ export default function ConversationItem({
     <button
       type="button"
       onClick={onClick}
-      className={`block w-full border-b border-slate-100 p-4 text-left text-sm transition hover:bg-slate-50 ${
-        selected ? "bg-slate-100" : ""
+      aria-pressed={selected}
+      className={`relative flex w-full items-start gap-3 border-b border-slate-100 px-4 py-4 text-left transition-colors ${
+        selected ? "bg-blue-50/70" : "bg-white hover:bg-slate-50"
       }`}
     >
-      <span className="block font-medium text-slate-900">
-        Conversation with user #{userId}
-      </span>
-
-      {propertyId !== null && (
-        <span className="mt-1 block text-xs text-slate-500">
-          Property #{propertyId}
-        </span>
+      {selected && (
+        <span className="absolute bottom-3 left-0 top-3 w-[3px] rounded-r-full bg-blue-600" />
       )}
+
+      <div
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+          selected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"
+        }`}
+      >
+        A
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <span
+            className={`truncate text-sm ${
+              selected
+                ? "font-semibold text-slate-950"
+                : "font-medium text-slate-800"
+            }`}
+          >
+            Agent #{userId}
+          </span>
+        </div>
+
+        <p className="mt-1 truncate text-xs text-slate-500">
+          {propertyId !== null
+            ? `Property #${propertyId}`
+            : "General conversation"}
+        </p>
+
+        <p className="mt-2 truncate text-xs text-slate-400">
+          Open conversation
+        </p>
+      </div>
     </button>
   );
 }
