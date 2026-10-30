@@ -21,6 +21,7 @@ export function RegisterModal() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("BUYER");
+  const [adminSetupKey, setAdminSetupKey] = useState("");
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const isLoading = status === "loading";
 
@@ -35,6 +36,7 @@ export function RegisterModal() {
           email: email.trim(),
           password,
           role,
+          ...(role === "ADMIN" ? { admin_setup_key: adminSetupKey } : {}),
         }),
       ).unwrap();
       setFormMessage(
@@ -43,6 +45,7 @@ export function RegisterModal() {
           "Your account is ready. Sign in to continue.",
       );
       setPassword("");
+      setAdminSetupKey("");
     } catch {
       // Redux auth state displays the rejected request message.
     }
@@ -97,7 +100,19 @@ export function RegisterModal() {
           <option value="BUYER">Buyer</option>
           <option value="OWNER">Property owner</option>
           <option value="AGENT">Real estate agent</option>
+          <option value="ADMIN">Administrator</option>
         </SelectField>
+        {role === "ADMIN" && (
+          <Field
+            label="Administrator setup key"
+            type="password"
+            autoComplete="off"
+            required
+            value={adminSetupKey}
+            onChange={(event) => setAdminSetupKey(event.target.value)}
+            hint="Use the one-time key configured on the backend."
+          />
+        )}
         {error && <ErrorAlert message={error} />}
         {formMessage && (
           <p

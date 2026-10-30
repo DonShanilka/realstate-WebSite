@@ -23,7 +23,7 @@ export default function Home() {
   
   const latestProjects = [...items]
     .sort((left, right) => right.id - left.id)
-    .slice(0, 3);
+    .slice(0, 6);
 
   useEffect(() => {
     if (status === "idle") void dispatch(fetchProperties());

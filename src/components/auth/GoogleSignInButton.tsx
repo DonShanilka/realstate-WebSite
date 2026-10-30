@@ -48,9 +48,16 @@ export function GoogleSignInButton({
       try {
         const session = await dispatch(googleLogin(credential)).unwrap();
         const role = session.user?.role ?? readTokenUser(session.access_token).role;
-        navigate(role === "AGENT" ? "/agent" : returnTo || "/profile", {
-          replace: true,
-        });
+        navigate(
+          role === "ADMIN"
+            ? "/admin"
+            : role === "AGENT"
+              ? "/agent"
+              : returnTo || "/profile",
+          {
+            replace: true,
+          },
+        );
       } catch {
         // The rejected action keeps its error in Redux auth state.
       }

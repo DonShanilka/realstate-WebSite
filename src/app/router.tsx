@@ -20,6 +20,7 @@ import AgentDashboard from "../pages/agent/AgentDashboard";
 import AgentProperties from "../pages/agent/AgentProperties";
 import AgentViewings from "../pages/agent/AgentViewings";
 import AgentMessages from "../pages/agent/AgentMessages";
+import AdminDashboard from "../pages/admin/AdminDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
     path: "/",
     element: <MainLayout />,
     children: [
+      { path: "admin", element: <AdminDashboard /> },
       {
         index: true,
         element: <Home />,

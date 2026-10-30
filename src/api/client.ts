@@ -17,7 +17,12 @@ export class ApiError extends Error {
 function isPublicAuthEndpoint(path: string): boolean {
   const pathname = path.split("?")[0];
 
-  return ["/auth/login", "/auth/google", "/auth/register"].includes(pathname);
+  return [
+    "/auth/login",
+    "/auth/google",
+    "/auth/register",
+    "/auth/register-admin",
+  ].includes(pathname);
 }
 
 export async function request<T>(

@@ -19,6 +19,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   role: UserRole;
+  admin_setup_key?: string;
 }
 
 export interface AuthToken {

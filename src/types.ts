@@ -84,6 +84,7 @@ export interface PricePrediction {
   estimated_price_million: number;
   expected_range_million: { low: number; high: number };
   display: { estimated_market_price: string; expected_range: string };
+  request?: PricePredictionRequest;
   range_coverage: number;
   validation_mae_million: number;
   validation_r2: number | null;

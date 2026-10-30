@@ -1,14 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { formatPrice, formatType, location } from "../../utils/format";
 import type { Property } from "../../types";
 import propertyPlaceholder from "../../assets/property-placeholder.svg";
-import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import {
-  addFavorite,
-  fetchFavorites,
-  removeFavorite,
-} from "../../features/favorites/favorites.thunks";
+import { FavoriteButton } from "./FavoriteButton";
 
 interface PropertyCardProps {
   property: Property;
@@ -17,21 +12,6 @@ interface PropertyCardProps {
 export function PropertyCard({ property }: PropertyCardProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { token } = useAppSelector((state) => state.auth);
-
-  const { items: favorites, status: favoriteStatus } = useAppSelector(
-    (state) => state.favorites,
-  );
-
-  const isFavorite = favorites.some(
-    (favorite) => favorite.property_id === property.id,
-  );
-
-  useEffect(() => {
-    if (token && favoriteStatus === "idle") void dispatch(fetchFavorites());
-  }, [dispatch, favoriteStatus, token]);
-
   const place = location([property.city, property.district]);
   return (
     <article
@@ -61,32 +41,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           onError={() => setImageFailed(true)}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
         />
-        <button
-          type="button"
-          title={
-            token
-              ? isFavorite
-                ? "Remove from favorites"
-                : "Add to favorites"
-              : "Sign in to save properties"
-          }
-          aria-label={
-            token
-              ? isFavorite
-                ? "Remove from favorites"
-                : "Add to favorites"
-              : "Sign in to save properties"
-          }
-          disabled={!token}
-          onClick={(event) => {
-            event.stopPropagation();
-            if (isFavorite) void dispatch(removeFavorite(property.id));
-            else void dispatch(addFavorite(property.id));
-          }}
-          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-xl text-slate-900 shadow-sm transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isFavorite ? "♥" : "♡"}
-        </button>
+        <FavoriteButton propertyId={property.id} />
       </div>
 
       <div className="flex flex-1 flex-col pt-4">
@@ -151,12 +106,12 @@ export function PropertyCard({ property }: PropertyCardProps) {
    PROPERTY GRID
 ========================================================= */
 
-// export function PropertyGrid({ properties }: { properties: Property[] }) {
-//   return (
-//     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-//       {properties.map((property) => (
-//         <PropertyCard key={property.id} property={property} />
-//       ))}
-//     </div>
-//   );
-// }
+export function PropertyGrid({ properties }: { properties: Property[] }) {
+  return (
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {properties.map((property) => (
+        <PropertyCard key={property.id} property={property} />
+      ))}
+    </div>
+  );
+}

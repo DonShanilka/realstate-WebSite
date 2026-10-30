@@ -1,6 +1,14 @@
+import { useEffect, useState } from "react";
 import { useAppSelector } from "../../hooks/redux";
+import { bookingApi } from "../../features/bookings/booking.api";
+import type { Booking } from "../../features/bookings/booking.types";
+import { propertyApi } from "../../features/properties/property.api";
+import {
+  messageApi,
+  type AgentInboxConversation,
+} from "../../features/messages/message.api";
+import { ErrorAlert, Spinner } from "../../components/ui";
 
-import { AgentWelcomeHero } from "../../components/agent/AgentWelcomeHero";
 import { AgentWorkspaceToolCard } from "../../components/agent/AgentWorkspaceToolCard";
 
 import AgentDashboardStats from "../../components/agent/dashboard/AgentDashboardStats";
@@ -36,94 +44,159 @@ const workspaceTools = [
   },
 ];
 
-const dashboardData = {
+interface AgentDashboardData {
   stats: {
-    properties: 12,
-    bookings: 28,
-    newMessages: 4,
-    clients: 19,
-  },
+    properties: number;
+    bookings: number;
+    newMessages: number;
+    clients: number;
+  };
+  bookings: DashboardBooking[];
+  analytics: BookingAnalyticsItem[];
+}
 
-  bookings: [
-    {
-      id: 1,
-      propertyTitle: "Modern Family Villa",
-      buyerName: "Buyer #102",
-      date: "2026-10-13T10:30:00",
-      status: "PENDING",
-    },
-    {
-      id: 2,
-      propertyTitle: "Luxury Apartment",
-      buyerName: "Buyer #108",
-      date: "2026-10-15T14:00:00",
-      status: "CONFIRMED",
-    },
-    {
-      id: 3,
-      propertyTitle: "Land in Panadura",
-      buyerName: "Buyer #115",
-      date: "2026-10-18T09:00:00",
-      status: "PENDING",
-    },
-    {
-      id: 4,
-      propertyTitle: "Family House in Colombo",
-      buyerName: "Buyer #120",
-      date: "2026-10-20T11:00:00",
-      status: "CONFIRMED",
-    },
-  ] satisfies DashboardBooking[],
+function buildMonthlyAnalytics(bookings: Booking[]): BookingAnalyticsItem[] {
+  const now = new Date();
+  return Array.from({ length: 6 }, (_, index) => {
+    const month = new Date(now.getFullYear(), now.getMonth() - 5 + index, 1);
+    const count = bookings.filter((booking) => {
+      const createdAt = new Date(booking.created_at ?? booking.check_in);
+      return (
+        !Number.isNaN(createdAt.getTime()) &&
+        createdAt.getFullYear() === month.getFullYear() &&
+        createdAt.getMonth() === month.getMonth()
+      );
+    }).length;
 
-  analytics: [
-    { month: "May", bookings: 8 },
-    { month: "Jun", bookings: 12 },
-    { month: "Jul", bookings: 10 },
-    { month: "Aug", bookings: 15 },
-    { month: "Sep", bookings: 18 },
-    { month: "Oct", bookings: 13 },
-  ] satisfies BookingAnalyticsItem[],
-};
+    return {
+      month: month.toLocaleDateString(undefined, { month: "short" }),
+      bookings: count,
+    };
+  });
+}
+
+function mapDashboardBookings(bookings: Booking[]): DashboardBooking[] {
+  return bookings.map((booking) => ({
+    id: booking.id,
+    propertyTitle: booking.property?.title ?? `Property #${booking.property_id}`,
+    buyerName: booking.buyer?.full_name ?? `Buyer #${booking.user_id}`,
+    date: booking.check_in,
+    createdAt: booking.created_at,
+    status: booking.status,
+  }));
+}
+
+function buildAgentDashboard(
+  propertyCount: number,
+  bookings: Booking[],
+  conversations: AgentInboxConversation[],
+): AgentDashboardData {
+  return {
+    stats: {
+      properties: propertyCount,
+      bookings: bookings.length,
+      newMessages: conversations.reduce(
+        (total, conversation) => total + conversation.unread_count,
+        0,
+      ),
+      clients: new Set(conversations.map((conversation) => conversation.buyer_id))
+        .size,
+    },
+    bookings: mapDashboardBookings(bookings),
+    analytics: buildMonthlyAnalytics(bookings),
+  };
+}
 
 export default function AgentDashboard() {
   const auth = useAppSelector((state) => state.auth);
+  const [dashboard, setDashboard] = useState<AgentDashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!auth.token) return;
+    let active = true;
+    setLoading(true);
+    setError("");
+    setDashboard(null);
+
+    void Promise.all([
+      propertyApi.assignedToMe(),
+      bookingApi.forAgent(),
+      messageApi.agentInbox(),
+    ])
+      .then(([properties, bookings, conversations]) => {
+        if (!active) return;
+        setDashboard(
+          buildAgentDashboard(properties.length, bookings, conversations),
+        );
+      })
+      .catch((cause: unknown) => {
+        if (active) {
+          setError(
+            (cause as Error).message || "Could not load your dashboard data.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [auth.token]);
 
   return (
     <main className="mx-auto max-w-[1440px] px-5 py-8 sm:px-10 sm:py-12 lg:px-12">
-      {/* Welcome */}
-      {/* <AgentWelcomeHero fullName={auth.user?.full_name} /> */}
+      {loading && (
+        <div className="mt-8">
+          <Spinner label="Loading your dashboard" />
+        </div>
+      )}
+      {error && (
+        <div className="mt-8">
+          <ErrorAlert message={error} />
+        </div>
+      )}
 
       {/* Overview */}
-      <section className="mt-8">
-        <div className="mb-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Overview
-          </p>
+      {dashboard && !loading && (
+        <section className="mt-8">
+          <div className="mb-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Overview
+            </p>
 
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-            Your performance at a glance
-          </h2>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
+              Your performance at a glance
+            </h2>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            Monitor your properties, booking activity, client messages and buyer
-            relationships in one place.
-          </p>
-        </div>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Monitor your properties, booking activity, client messages and buyer
+              relationships in one place.
+            </p>
+          </div>
 
-        <AgentDashboardStats stats={dashboardData.stats} />
-      </section>
+          <AgentDashboardStats stats={dashboard.stats} />
+        </section>
+      )}
 
       {/* Analytics and calendar */}
-      <section className="mt-8 grid items-start gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(340px,0.9fr)]">
-        <BookingAnalyticsChart data={dashboardData.analytics} />
+      {dashboard && !loading && (
+        <>
+          <section className="mt-8 grid items-start gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(340px,0.9fr)]">
+            <BookingAnalyticsChart data={dashboard.analytics} />
 
-        <BookingCalendar bookings={dashboardData.bookings} />
-      </section>
+            <BookingCalendar bookings={dashboard.bookings} />
+          </section>
 
-      {/* Recent bookings */}
-      <section className="mt-8">
-        <RecentBookings bookings={dashboardData.bookings} />
-      </section>
+          {/* Recent bookings */}
+          <section className="mt-8">
+            <RecentBookings bookings={dashboard.bookings} />
+          </section>
+        </>
+      )}
 
       {/* Workspace tools */}
       <section className="mt-10 sm:mt-14">

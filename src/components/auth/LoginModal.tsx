@@ -35,8 +35,8 @@ export function LoginModal() {
       const role =
         session.user?.role ?? readTokenUser(session.access_token).role;
 
-      if (role === "AGENT") {
-        navigate("/agent", {
+      if (role === "AGENT" || role === "ADMIN") {
+        navigate(role === "ADMIN" ? "/admin" : "/agent", {
           replace: true,
         });
       } else {

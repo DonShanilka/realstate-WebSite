@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { askAssistant } from "../features/assistant/assistant.slice";
 import { formatPrice, formatType, location } from "../utils/format";
 import { Button, Chip, ErrorAlert, PageHeader, Spinner } from "../components/ui";
+import { FavoriteButton } from "../components/property/FavoriteButton";
 import type { AssistantProperty } from "../types";
 
 const suggestions = [
@@ -17,7 +18,7 @@ function Recommendation({ property, highlight }: { property: AssistantProperty; 
   const place = location([property.city, property.district]);
   return (
     <div className={`flex gap-4 rounded-lg border p-3 ${highlight ? "border-slate-300 bg-slate-50/60" : "border-slate-200 bg-white"}`}>
-      <div className="h-20 w-28 shrink-0 overflow-hidden rounded-md bg-slate-50">
+      <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-md bg-slate-50">
         {property.image_url && (
           <img
             src={property.image_url}
@@ -26,6 +27,10 @@ function Recommendation({ property, highlight }: { property: AssistantProperty; 
             className="h-full w-full object-cover"
           />
         )}
+        <FavoriteButton
+          propertyId={property.id}
+          className="absolute right-1 top-1 z-10 grid h-7 w-7 place-items-center rounded-full bg-white/95 text-base text-slate-900 shadow-sm transition hover:scale-105 hover:bg-white"
+        />
       </div>
       <div className="min-w-0 space-y-1 text-sm">
         <p className="font-semibold text-slate-900">

@@ -5,6 +5,7 @@ export interface DashboardBooking {
   propertyTitle: string;
   buyerName: string;
   date: string;
+  createdAt?: string;
   status: string;
 }
 

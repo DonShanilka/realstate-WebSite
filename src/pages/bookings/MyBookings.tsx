@@ -8,6 +8,7 @@ import {
 import { fetchProperties } from "../../features/properties/property.thunks";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { formatPrice } from "../../utils/format";
+import { FavoriteButton } from "../../components/property/FavoriteButton";
 export default function MyBookings() {
   const dispatch = useAppDispatch();
   const auth = useAppSelector((state) => state.auth);
@@ -50,9 +51,15 @@ export default function MyBookings() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="font-semibold text-slate-900">
-                        {property?.title ?? `Property #${booking.property_id}`}
-                      </h2>
+                      <div className="flex items-start gap-2">
+                        <h2 className="font-semibold text-slate-900">
+                          {property?.title ?? `Property #${booking.property_id}`}
+                        </h2>
+                        <FavoriteButton
+                          propertyId={booking.property_id}
+                          className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-100 text-lg text-slate-900 transition hover:bg-slate-200"
+                        />
+                      </div>
                       <p className="mt-1 text-sm text-slate-500">
                         {new Date(booking.check_in).toLocaleDateString()} –{" "}
                         {new Date(booking.check_out).toLocaleDateString()}

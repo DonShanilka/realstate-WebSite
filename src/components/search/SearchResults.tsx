@@ -5,6 +5,7 @@ import { formatPrice, formatType, location } from "../../format";
 import type { Property } from "../../types";
 
 import propertyPlaceholder from "../../assets/property-placeholder.svg";
+import { FavoriteButton } from "../property/FavoriteButton";
 
 import { Chip, ErrorAlert, Spinner } from "../ui";
 
@@ -147,32 +148,35 @@ export function SearchResults({
                 return (
                   <article
                     key={property.id}
-                    className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl bg-white transition duration-300 hover:shadow-lg focus-within:ring-2 focus-within:ring-slate-950"
+                    className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl bg-white transition duration-300"
                   >
                     {/* Property Image */}
-                    <button
-                      type="button"
-                      onClick={() => openProperty(property)}
-                      aria-label={`View ${property.title} details`}
-                      className="relative block aspect-[1.46] w-full overflow-hidden rounded-3xl bg-slate-100 text-left"
-                    >
-                      <img
-                        src={property.image_url || propertyPlaceholder}
-                        alt={property.title}
-                        loading="lazy"
-                        onError={(event) => {
-                          event.currentTarget.onerror = null;
-                          event.currentTarget.src = propertyPlaceholder;
-                        }}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                      />
+                    <div className="relative aspect-[1.46] overflow-hidden rounded-3xl bg-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => openProperty(property)}
+                        aria-label={`View ${property.title} details`}
+                        className="block h-full w-full text-left"
+                      >
+                        <img
+                          src={property.image_url || propertyPlaceholder}
+                          alt={property.title}
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.onerror = null;
+                            event.currentTarget.src = propertyPlaceholder;
+                          }}
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                        />
 
-                      {property.status && (
-                        <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold capitalize text-slate-700 shadow-sm">
-                          {property.status.toLowerCase().replaceAll("_", " ")}
-                        </span>
-                      )}
-                    </button>
+                        {property.status && (
+                          <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold capitalize text-slate-700 shadow-sm">
+                            {property.status.toLowerCase().replaceAll("_", " ")}
+                          </span>
+                        )}
+                      </button>
+                      <FavoriteButton propertyId={property.id} />
+                    </div>
 
                     {/* Property Details */}
                     <div className="flex flex-1 flex-col pt-4">

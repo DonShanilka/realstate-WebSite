@@ -3,14 +3,20 @@ import type { DashboardBooking } from "./BookingCalendar";
 interface RecentBookingsProps {
   bookings: DashboardBooking[];
   loading?: boolean;
+  totalCount?: number;
 }
 
 export default function RecentBookings({
   bookings,
   loading = false,
+  totalCount = bookings.length,
 }: RecentBookingsProps) {
   const recentBookings = [...bookings]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt ?? b.date).getTime() -
+        new Date(a.createdAt ?? a.date).getTime(),
+    )
     .slice(0, 5);
 
   return (
@@ -27,7 +33,7 @@ export default function RecentBookings({
         </div>
 
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-          {bookings.length} total
+          {totalCount} total
         </span>
       </div>
 

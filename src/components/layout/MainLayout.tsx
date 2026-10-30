@@ -4,12 +4,12 @@ import { Footer } from "./Footer";
 
 export default function MainLayout() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex min-h-dvh flex-col bg-white">
       <Navbar />
 
-      <main>
+      <div className="flex-1">
         <Outlet />
-      </main>
+      </div>
 
       <Footer />
     </div>

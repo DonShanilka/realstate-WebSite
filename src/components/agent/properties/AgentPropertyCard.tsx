@@ -5,6 +5,7 @@ import { formatPrice, formatType, location } from "../../../utils/format";
 import type { Property } from "../../../types";
 
 import propertyPlaceholder from "../../../assets/property-placeholder.svg";
+import { FavoriteButton } from "../../property/FavoriteButton";
 
 interface AgentPropertyCardProps {
   property: Property;
@@ -29,12 +30,6 @@ export function AgentPropertyCard({
 
   const status = property.status || "Available";
 
-  const openPropertyDetails = () => {
-    navigate(`/agent/properties/${property.id}`, {
-      state: { property },
-    });
-  };
-
   const handleMessageBuyer = (
     event: MouseEvent<HTMLButtonElement>,
   ) => {
@@ -44,7 +39,7 @@ export function AgentPropertyCard({
   };
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white transition duration-300 hover:border-slate-300 hover:shadow-lg">
+    <article className="group flex h-full flex-col overflow-hidden rounded-3xl">
       <div className="relative aspect-[1.46] w-full overflow-hidden bg-slate-100">
         <img
           src={property.image_url || propertyPlaceholder}
@@ -60,6 +55,11 @@ export function AgentPropertyCard({
         <span className="absolute left-4 top-4 rounded-full border border-white/70 bg-white/95 px-3 py-1.5 text-xs font-semibold capitalize text-slate-800 shadow-sm">
           {status.toLowerCase().replaceAll("_", " ")}
         </span>
+
+        <FavoriteButton
+          propertyId={property.id}
+          returnTo="/agent/properties"
+        />
 
         <span className="absolute bottom-4 right-4 rounded-full bg-slate-950/80 px-3 py-1.5 text-xs font-medium text-white">
           Agent listing

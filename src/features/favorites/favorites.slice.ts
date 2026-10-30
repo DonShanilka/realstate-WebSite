@@ -36,9 +36,18 @@ const slice = createSlice({
     b.addCase(addFavorite.fulfilled, (s, a) => {
       if ("id" in a.payload && !s.items.some((x) => x.property_id === a.payload.property_id))
         s.items.push(a.payload);
-    }).addCase(removeFavorite.fulfilled, (s, a) => {
-      s.items = s.items.filter((x) => x.property_id !== a.payload);
-    });
+      s.error = null;
+    })
+      .addCase(addFavorite.rejected, (s, a) => {
+        s.error = a.payload ?? "Could not save this property to favorites";
+      })
+      .addCase(removeFavorite.fulfilled, (s, a) => {
+        s.items = s.items.filter((x) => x.property_id !== a.payload);
+        s.error = null;
+      })
+      .addCase(removeFavorite.rejected, (s, a) => {
+        s.error = a.payload ?? "Could not remove this property from favorites";
+      });
   },
 });
 

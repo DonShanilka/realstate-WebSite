@@ -15,10 +15,13 @@ export const authApi = {
       ...jsonBody({ credential }),
     }),
   register: (body: RegisterPayload) =>
-    request<{ message: string }>("/auth/register", {
-      method: "POST",
-      ...jsonBody(body),
-    }),
+    request<{ message: string }>(
+      body.role === "ADMIN" ? "/auth/register-admin" : "/auth/register",
+      {
+        method: "POST",
+        ...jsonBody(body),
+      },
+    ),
   me: (id: number) => request<User>(`/users/${id}`),
   updateProfile: (
     id: number,

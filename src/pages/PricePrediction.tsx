@@ -36,6 +36,7 @@ export default function PricePredictionPage() {
   const [form, setForm] = useState(initial);
   const [validationError, setValidationError] = useState("");
   const loading = requestStatus === "loading";
+  const isLand = form.property_type === "LAND";
   const error = validationError || requestError || "";
 
   useEffect(() => {
@@ -49,24 +50,29 @@ export default function PricePredictionPage() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     setValidationError("");
-    const bedrooms = toNumber(form.bedrooms);
-    const bathrooms = toNumber(form.bathrooms);
+    const bedroomCount = toNumber(form.bedrooms);
+    const bathroomCount = toNumber(form.bathrooms);
+    const landArea = toNumber(form.land_area_perches);
     if (
       !form.city.trim() ||
-      bedrooms === undefined ||
-      bathrooms === undefined
+      (!isLand && (bedroomCount === undefined || bathroomCount === undefined)) ||
+      (isLand && landArea === undefined)
     ) {
-      return setValidationError("City, bedrooms and bathrooms are required.");
+      return setValidationError(
+        isLand
+          ? "City and land area are required."
+          : "City, bedrooms and bathrooms are required.",
+      );
     }
     void dispatch(
       predictPrice({
         city: form.city.trim(),
         district: form.district.trim() || undefined,
         property_type: form.property_type,
-        bedrooms,
-        bathrooms,
-        house_area_sqft: toNumber(form.house_area_sqft),
-        land_area_perches: toNumber(form.land_area_perches),
+        bedrooms: isLand ? 0 : (bedroomCount ?? 0),
+        bathrooms: isLand ? 0 : (bathroomCount ?? 0),
+        house_area_sqft: isLand ? undefined : toNumber(form.house_area_sqft),
+        land_area_perches: isLand ? landArea : undefined,
       }),
     );
   }
@@ -112,8 +118,9 @@ export default function PricePredictionPage() {
               type="number"
               min={0}
               max={20}
-              required
-              value={form.bedrooms}
+              required={!isLand}
+              disabled={isLand}
+              value={isLand ? "0" : form.bedrooms}
               onChange={set("bedrooms")}
             />
             <Field
@@ -121,25 +128,29 @@ export default function PricePredictionPage() {
               type="number"
               min={0}
               max={20}
-              required
-              value={form.bathrooms}
+              required={!isLand}
+              disabled={isLand}
+              value={isLand ? "0" : form.bathrooms}
               onChange={set("bathrooms")}
             />
-            <Field
-              label="House area (sq.ft)"
-              type="number"
-              min={1}
-              value={form.house_area_sqft}
-              onChange={set("house_area_sqft")}
-            />
-            <Field
-              label="Land area (perches)"
-              type="number"
-              min={1}
-              value={form.land_area_perches}
-              onChange={set("land_area_perches")}
-              hint="Optional. Not used by the model until land data is available."
-            />
+            {isLand ? (
+              <Field
+                label="Land area (perches)"
+                type="number"
+                min={1}
+                required
+                value={form.land_area_perches}
+                onChange={set("land_area_perches")}
+              />
+            ) : (
+              <Field
+                label="House area (sq.ft)"
+                type="number"
+                min={1}
+                value={form.house_area_sqft}
+                onChange={set("house_area_sqft")}
+              />
+            )}
           </div>
           <Button type="submit" disabled={loading || status?.ready === false}>
             {loading ? "Estimating…" : "Estimate price"}
@@ -164,6 +175,14 @@ export default function PricePredictionPage() {
                 <p className="mt-1 text-4xl font-bold text-slate-900">
                   {result.display.estimated_market_price}
                 </p>
+                {result.request && (
+                  <p className="mt-2 text-xs text-slate-500">
+                    Based on {result.request.city} · {result.request.property_type}
+                    {result.request.property_type === "LAND"
+                      ? ` · ${result.request.land_area_perches} perches`
+                      : ` · ${result.request.bedrooms} beds · ${result.request.bathrooms} baths · ${result.request.house_area_sqft ?? "area not set"} sq.ft`}
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-sm font-medium text-slate-500">

@@ -17,12 +17,10 @@ export function LatestProjectsSection({
   const scrollProjects = (direction: -1 | 1) => {
     const firstCard = track.current?.firstElementChild as HTMLElement | null;
     const gap = track.current
-      ? Number.parseFloat(getComputedStyle(track.current).columnGap) || 24
-      : 24;
+      ? Number.parseFloat(getComputedStyle(track.current).columnGap) || 20
+      : 20;
     track.current?.scrollBy({
-      left:
-        direction *
-        ((firstCard?.offsetWidth ?? track.current.clientWidth) + gap),
+      left: direction * ((firstCard?.offsetWidth ?? 0) + gap),
       behavior: "smooth",
     });
   };
@@ -69,7 +67,7 @@ export function LatestProjectsSection({
       {!loading && projects.length > 0 && (
         <div
           ref={track}
-          className="flex items-stretch snap-x snap-mandatory gap-6 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
@@ -95,7 +93,7 @@ function ProjectCard({ project }: { project: Property }) {
   const place = location([project.city, project.district]);
 
   return (
-    <article className="flex h-full min-w-0 basis-full shrink-0 snap-start flex-col lg:basis-[min(46vw,640px)]">
+    <article className="flex h-full min-w-0 basis-full shrink-0 snap-start flex-col sm:basis-[calc((100%-1.25rem)/2)] lg:basis-[calc((100%-2.5rem)/3)]">
       <Link
         to={`/properties/${project.id}`}
         state={{ property: project }}
@@ -114,26 +112,26 @@ function ProjectCard({ project }: { project: Property }) {
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
           />
         </div>
-        <h3 className="mt-5 line-clamp-1 min-h-9 text-2xl font-medium tracking-tight text-slate-950 sm:text-3xl">
+        <h3 className="mt-4 line-clamp-1 text-xl font-medium tracking-tight text-slate-950 sm:text-2xl">
           {project.title}
         </h3>
       </Link>
-      <div className="mt-4 flex h-[42px] flex-nowrap gap-2.5 overflow-hidden">
+      <div className="mt-3 flex min-h-[36px] flex-wrap content-start gap-2">
         {tags.map((tag) => (
           <span
             key={tag}
-            className="shrink-0 whitespace-nowrap rounded-full border border-slate-200 px-4 py-2 text-sm text-slate-800"
+            className="h-fit rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 sm:text-sm"
           >
             {tag}
           </span>
         ))}
         {place && (
-          <span className="shrink-0 whitespace-nowrap rounded-full border border-slate-200 px-4 py-2 text-sm text-slate-800">
+          <span className="h-fit rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 sm:text-sm">
             {place}
           </span>
         )}
       </div>
-      <p className="mt-6 min-h-[84px] max-w-2xl line-clamp-3 text-base leading-7 text-slate-600">
+      <p className="mt-2 min-h-12 line-clamp-2 text-sm leading-6 text-slate-600">
         {project.description ||
           `Explore ${project.title}${place ? ` in ${place}` : ""} and view the full property details.`}
       </p>
